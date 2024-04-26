@@ -97,6 +97,11 @@ function getEndpointUrl(chainId: Chain, alchemyKey: string): string {
   return alchemy(chainId, alchemyKey);
 }
 
+function getExplorerUrl(chainId: Chain): string | null {
+  const chainData = getChainData(chainId);
+  return chainData.blockExplorers?.default.url || null;
+}
+
 export {
   CHAINS,
   DEFAULT_CHAIN,
@@ -114,5 +119,6 @@ export {
   getChainData,
   getChainName,
   getEndpointUrl,
+  getExplorerUrl,
 };
 export type { Chain };

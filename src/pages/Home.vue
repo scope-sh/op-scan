@@ -10,10 +10,47 @@
           <div>success: {{ userOp.success }}</div>
           <div>entry point: {{ userOp.entryPoint }}</div>
           <div>block number: {{ userOp.blockNumber }}</div>
-          <div>transaction hash: {{ userOp.transactionHash }}</div>
-          <div>sender: {{ userOp.sender }}</div>
-          <div>paymaster: {{ userOp.paymaster }}</div>
-          <div>bundler: {{ userOp.bundler }}</div>
+          <div class="row-link">
+            transaction hash: {{ userOp.transactionHash }}
+            <a
+              :href="
+                getTransactionExplorerUrl(
+                  userOp.chainId,
+                  userOp.transactionHash,
+                )
+              "
+              target="_blank"
+            >
+              <IconEtherscan class="icon" />
+            </a>
+          </div>
+          <div class="row-link">
+            sender: {{ userOp.sender }}
+            <a
+              :href="getAddressExplorerUrl(userOp.chainId, userOp.sender)"
+              target="_blank"
+            >
+              <IconEtherscan class="icon" />
+            </a>
+          </div>
+          <div class="row-link">
+            paymaster: {{ userOp.paymaster }}
+            <a
+              :href="getAddressExplorerUrl(userOp.chainId, userOp.paymaster)"
+              target="_blank"
+            >
+              <IconEtherscan class="icon" />
+            </a>
+          </div>
+          <div class="row-link">
+            bundler: {{ userOp.bundler }}
+            <a
+              :href="getAddressExplorerUrl(userOp.chainId, userOp.bundler)"
+              target="_blank"
+            >
+              <IconEtherscan class="icon" />
+            </a>
+          </div>
           <div>nonce: {{ userOp.nonce }}</div>
         </div>
         <div v-if="transaction">
@@ -33,13 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { Hex, decodeEventLog, formatUnits } from 'viem';
+import { Address, Hex, decodeEventLog, formatUnits } from 'viem';
 import { computed, ref } from 'vue';
 
+import IconEtherscan from '@/components/IconEtherscan.vue';
 import useEnv from '@/composables/useEnv';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
 import IndexerService, { TransactionUserOp } from '@/services/indexer';
-import { Chain, getChainClient } from '@/utils/chains';
+import { Chain, getChainClient, getExplorerUrl } from '@/utils/chains';
 import { isUserOpHash } from '@/utils/validation/pattern';
 
 const { alchemyApiKey } = useEnv();
@@ -195,6 +233,16 @@ function fromWei(value: bigint | number, decimals: number): number {
   }
   return parseFloat(formatUnits(BigInt(value.toString()), decimals));
 }
+
+function getAddressExplorerUrl(chain: Chain, address: Address): string {
+  const explorerUrl = getExplorerUrl(chain);
+  return `${explorerUrl}/address/${address}`;
+}
+
+function getTransactionExplorerUrl(chain: Chain, hash: Hex): string {
+  const explorerUrl = getExplorerUrl(chain);
+  return `${explorerUrl}/tx/${hash}`;
+}
 </script>
 
 <style scoped>
@@ -250,5 +298,24 @@ input {
   line-height: 1.2;
   word-break: break-all;
   white-space: pre-wrap;
+}
+
+a {
+  color: inherit;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.4;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.row-link {
+  display: flex;
+  gap: 4px;
 }
 </style>
