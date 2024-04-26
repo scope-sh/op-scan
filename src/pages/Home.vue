@@ -102,7 +102,7 @@ input {
 }
 
 .hex {
-  --font-size: 14px;
+  --font-size: 13px;
   --row-count: 4;
   --line-height: 1.2;
   --padding: 8px;
@@ -114,6 +114,7 @@ input {
   );
   padding: var(--padding);
   overflow: auto;
+  font-family: var(--font-mono);
   font-size: var(--font-size);
   line-height: 1.2;
   word-break: break-all;
