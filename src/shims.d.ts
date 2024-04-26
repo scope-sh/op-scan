@@ -4,3 +4,9 @@ declare module '*.vue' {
   const component: ComponentOptions;
   export default component;
 }
+
+interface ImportMeta {
+  env: {
+    VITE_ALCHEMY_API_KEY?: string;
+  };
+}
