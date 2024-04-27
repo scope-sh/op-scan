@@ -2,9 +2,6 @@
   <div class="page">
     <div class="content">
       <div class="card">
-        <form @submit.prevent="handleSubmit">
-          <input v-model="query" />
-        </form>
         <div v-if="userOpData">
           <div>chain id: {{ userOpData.chainId }}</div>
           <div>success: {{ userOpData.success }}</div>
@@ -85,7 +82,8 @@ import {
   formatUnits,
   keccak256,
 } from 'viem';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
 import entryPointV_0_6_0Abi from '@/abi/entryPointV0_6_0';
 import entryPointV_0_7_0Abi from '@/abi/entryPointV0_7_0';
@@ -94,7 +92,6 @@ import useEnv from '@/composables/useEnv';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
 import IndexerService, { TransactionUserOp } from '@/services/indexer';
 import { Chain, getChainClient, getExplorerUrl } from '@/utils/chains';
-import { isUserOpHash } from '@/utils/validation/pattern';
 
 interface UserOp_0_6 {
   sender: Address;
@@ -137,26 +134,35 @@ const ENTRY_POINT_0_6_ADDRESS = '0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789';
 const ENTRY_POINT_0_7_ADDRESS = '0x0000000071727de22e5e9d8baf0edac6f37da032';
 
 const { alchemyApiKey, indexerEndpoint } = useEnv();
+const route = useRoute();
+
+const hash = computed(() => route.params.hash as Hex);
 
 const indexerService = new IndexerService(indexerEndpoint);
 
-const query = ref('');
-const userOpHash = ref('');
 const userOpData = ref<TransactionUserOp | null>(null);
 const transaction = ref<Transaction | null>(null);
 const transactionReceipt = ref<TransactionReceipt | null>(null);
 
-async function handleSubmit(): Promise<void> {
-  const hash = query.value.trim().toLowerCase();
-  if (!isUserOpHash(hash)) {
-    return;
-  }
-  userOpHash.value = hash;
+watch(
+  hash,
+  () => {
+    if (hash.value) {
+      fetch();
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+async function fetch(): Promise<void> {
   userOpData.value = null;
   transaction.value = null;
   transactionReceipt.value = null;
-  const transactionUserOp =
-    await indexerService.getTransactionByUserOpHash(hash);
+  const transactionUserOp = await indexerService.getTransactionByUserOpHash(
+    hash.value,
+  );
   if (!transactionUserOp) {
     return;
   }
@@ -307,8 +313,7 @@ const userOp = computed<UserOp | null>(() => {
   return (
     userOps.find(
       (userOp) =>
-        getUserOpHash(data.chainId, data.entryPoint, userOp) ===
-        userOpHash.value,
+        getUserOpHash(data.chainId, data.entryPoint, userOp) === hash.value,
     ) || null
   );
 });
@@ -321,7 +326,7 @@ const userOpEvent = computed(() => {
     (log) =>
       log.topics[0] ===
         '0x49628fd1471006c1482da88028e9ce4dbb080b815c9b0344d39e5a8e6ec1419f' &&
-      log.topics[1] === userOpHash.value,
+      log.topics[1] === hash.value,
   );
   if (!log) {
     return null;
