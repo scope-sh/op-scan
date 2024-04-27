@@ -8,5 +8,6 @@ declare module '*.vue' {
 interface ImportMeta {
   env: {
     VITE_ALCHEMY_API_KEY?: string;
+    VITE_INDEXER_ENDPOINT?: string;
   };
 }

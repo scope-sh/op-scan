@@ -80,9 +80,9 @@ import IndexerService, { TransactionUserOp } from '@/services/indexer';
 import { Chain, getChainClient, getExplorerUrl } from '@/utils/chains';
 import { isUserOpHash } from '@/utils/validation/pattern';
 
-const { alchemyApiKey } = useEnv();
+const { alchemyApiKey, indexerEndpoint } = useEnv();
 
-const indexerService = new IndexerService();
+const indexerService = new IndexerService(indexerEndpoint);
 
 const userOpHash = ref('');
 const userOp = ref<TransactionUserOp | null>(null);
