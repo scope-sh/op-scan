@@ -11,6 +11,13 @@ import '@fontsource-variable/jetbrains-mono';
 
 <style>
 :root {
+  --color-background-primary: #fefefe;
+  --color-background-secondary: #efefef;
+  --color-background-tertiary: #e3e3e3;
+  --color-background-quaternary: #dcdcdc;
+  --color-text-primary: #393939;
+  --color-text-secondary: #6a6a6a;
+  --color-border: #dadada;
   --font-sans: 'Inter Variable', -apple-system, 'BlinkMacSystemFont',
     avenir next, avenir, segoe ui, helvetica neue, helvetica, 'Ubuntu', roboto,
     noto, arial, sans-serif;

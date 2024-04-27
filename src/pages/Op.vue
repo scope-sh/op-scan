@@ -218,6 +218,7 @@ function getTransactionExplorerUrl(chain: Chain, hash: Hex): string {
   align-items: center;
   justify-content: center;
   height: 100vh;
+  background: var(--color-background-secondary);
 }
 
 .content {
@@ -229,22 +230,10 @@ function getTransactionExplorerUrl(chain: Chain, hash: Hex): string {
   display: flex;
   flex-direction: column;
   padding: 16px;
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: #f5f5f5;
+  background: var(--color-background-primary);
   gap: 16px;
-}
-
-input {
-  width: 100%;
-  padding: 4px;
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  outline: none;
-  background: transparent;
-
-  &:focus {
-    border-color: #888;
-  }
 }
 
 .hex {
