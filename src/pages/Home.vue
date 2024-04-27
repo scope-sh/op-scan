@@ -5,18 +5,18 @@
         <form @submit.prevent="handleSubmit">
           <input v-model="query" />
         </form>
-        <div v-if="userOp">
-          <div>chain id: {{ userOp.chainId }}</div>
-          <div>success: {{ userOp.success }}</div>
-          <div>entry point: {{ userOp.entryPoint }}</div>
-          <div>block number: {{ userOp.blockNumber }}</div>
+        <div v-if="userOpData">
+          <div>chain id: {{ userOpData.chainId }}</div>
+          <div>success: {{ userOpData.success }}</div>
+          <div>entry point: {{ userOpData.entryPoint }}</div>
+          <div>block number: {{ userOpData.blockNumber }}</div>
           <div class="row-link">
-            transaction hash: {{ userOp.transactionHash }}
+            transaction hash: {{ userOpData.transactionHash }}
             <a
               :href="
                 getTransactionExplorerUrl(
-                  userOp.chainId,
-                  userOp.transactionHash,
+                  userOpData.chainId,
+                  userOpData.transactionHash,
                 )
               "
               target="_blank"
@@ -25,38 +25,44 @@
             </a>
           </div>
           <div class="row-link">
-            sender: {{ userOp.sender }}
+            sender: {{ userOpData.sender }}
             <a
-              :href="getAddressExplorerUrl(userOp.chainId, userOp.sender)"
+              :href="
+                getAddressExplorerUrl(userOpData.chainId, userOpData.sender)
+              "
               target="_blank"
             >
               <IconEtherscan class="icon" />
             </a>
           </div>
           <div class="row-link">
-            paymaster: {{ userOp.paymaster }}
+            paymaster: {{ userOpData.paymaster }}
             <a
-              :href="getAddressExplorerUrl(userOp.chainId, userOp.paymaster)"
+              :href="
+                getAddressExplorerUrl(userOpData.chainId, userOpData.paymaster)
+              "
               target="_blank"
             >
               <IconEtherscan class="icon" />
             </a>
           </div>
           <div class="row-link">
-            bundler: {{ userOp.bundler }}
+            bundler: {{ userOpData.bundler }}
             <a
-              :href="getAddressExplorerUrl(userOp.chainId, userOp.bundler)"
+              :href="
+                getAddressExplorerUrl(userOpData.chainId, userOpData.bundler)
+              "
               target="_blank"
             >
               <IconEtherscan class="icon" />
             </a>
           </div>
-          <div>nonce: {{ userOp.nonce }}</div>
+          <div>nonce: {{ userOpData.nonce }}</div>
         </div>
-        <div v-if="transaction">
+        <div v-if="userOp">
           <div>
             calldata
-            <div class="hex">{{ transaction.input }}</div>
+            <div class="hex">{{ userOp.callData }}</div>
           </div>
         </div>
         <div v-if="actualGasCost && actualGasUsed && actualGasFee">
@@ -70,9 +76,19 @@
 </template>
 
 <script setup lang="ts">
-import { Address, Hex, decodeEventLog, formatUnits } from 'viem';
+import {
+  Address,
+  Hex,
+  decodeEventLog,
+  decodeFunctionData,
+  encodeAbiParameters,
+  formatUnits,
+  keccak256,
+} from 'viem';
 import { computed, ref } from 'vue';
 
+import entryPointV_0_6_0Abi from '@/abi/entryPointV0_6_0';
+import entryPointV_0_7_0Abi from '@/abi/entryPointV0_7_0';
 import IconEtherscan from '@/components/IconEtherscan.vue';
 import useEnv from '@/composables/useEnv';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
@@ -80,13 +96,53 @@ import IndexerService, { TransactionUserOp } from '@/services/indexer';
 import { Chain, getChainClient, getExplorerUrl } from '@/utils/chains';
 import { isUserOpHash } from '@/utils/validation/pattern';
 
+interface UserOp_0_6 {
+  sender: Address;
+  nonce: bigint;
+  initCode: Hex;
+  callData: Hex;
+  callGasLimit: bigint;
+  verificationGasLimit: bigint;
+  preVerificationGas: bigint;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
+  paymasterAndData: Hex;
+  signature: Hex;
+}
+
+interface UserOp_0_7 {
+  sender: Address;
+  nonce: bigint;
+  initCode: Hex;
+  callData: Hex;
+  accountGasLimits: Hex;
+  preVerificationGas: bigint;
+  gasFees: Hex;
+  paymasterAndData: Hex;
+  signature: Hex;
+}
+
+type UserOp = UserOp_0_6 | UserOp_0_7;
+
+type TxType =
+  | typeof TX_TYPE_ENTRY_POINT_0_6
+  | typeof TX_TYPE_ENTRY_POINT_0_7
+  | typeof TX_TYPE_UNKNOWN;
+
+const TX_TYPE_ENTRY_POINT_0_6 = 'Entry Point 0.6';
+const TX_TYPE_ENTRY_POINT_0_7 = 'Entry Point 0.7';
+const TX_TYPE_UNKNOWN = 'Unknown';
+
+const ENTRY_POINT_0_6_ADDRESS = '0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789';
+const ENTRY_POINT_0_7_ADDRESS = '0x0000000071727de22e5e9d8baf0edac6f37da032';
+
 const { alchemyApiKey, indexerEndpoint } = useEnv();
 
 const indexerService = new IndexerService(indexerEndpoint);
 
 const query = ref('');
 const userOpHash = ref('');
-const userOp = ref<TransactionUserOp | null>(null);
+const userOpData = ref<TransactionUserOp | null>(null);
 const transaction = ref<Transaction | null>(null);
 const transactionReceipt = ref<TransactionReceipt | null>(null);
 
@@ -96,7 +152,7 @@ async function handleSubmit(): Promise<void> {
     return;
   }
   userOpHash.value = hash;
-  userOp.value = null;
+  userOpData.value = null;
   transaction.value = null;
   transactionReceipt.value = null;
   const transactionUserOp =
@@ -104,7 +160,7 @@ async function handleSubmit(): Promise<void> {
   if (!transactionUserOp) {
     return;
   }
-  userOp.value = transactionUserOp;
+  userOpData.value = transactionUserOp;
   await Promise.all([
     fetchTransaction(
       transactionUserOp.chainId,
@@ -128,6 +184,134 @@ async function fetchTransactionReceipt(chain: Chain, hash: Hex): Promise<void> {
   const evmService = new EvmService(chain, client);
   transactionReceipt.value = await evmService.getTransactionReceipt(hash);
 }
+
+function getUserOps(transaction: Transaction): UserOp[] {
+  function getTxType(transaction: Transaction): TxType {
+    if (transaction.to === ENTRY_POINT_0_6_ADDRESS) {
+      return TX_TYPE_ENTRY_POINT_0_6;
+    }
+    if (transaction.to === ENTRY_POINT_0_7_ADDRESS) {
+      return TX_TYPE_ENTRY_POINT_0_7;
+    }
+    return TX_TYPE_UNKNOWN;
+  }
+
+  const txType = getTxType(transaction);
+  if (txType === TX_TYPE_ENTRY_POINT_0_6) {
+    const { functionName, args } = decodeFunctionData({
+      abi: entryPointV_0_6_0Abi,
+      data: transaction.input,
+    });
+    if (functionName !== 'handleOps') {
+      return [];
+    }
+    return args[0] as UserOp_0_6[];
+  }
+  if (txType === TX_TYPE_ENTRY_POINT_0_7) {
+    const { functionName, args } = decodeFunctionData({
+      abi: entryPointV_0_7_0Abi,
+      data: transaction.input,
+    });
+    if (functionName !== 'handleOps') {
+      return [];
+    }
+    return args[0] as UserOp_0_7[];
+  }
+  return [];
+}
+
+function getUserOpHash(
+  chain: Chain,
+  entryPoint: Address,
+  userOp: UserOp,
+): Hex | null {
+  if (entryPoint === ENTRY_POINT_0_6_ADDRESS) {
+    const userOperation = userOp as UserOp_0_6;
+    const hashedInitCode = keccak256(userOperation.initCode);
+    const hashedCallData = keccak256(userOperation.callData);
+    const hashedPaymasterAndData = keccak256(userOperation.paymasterAndData);
+
+    const packedUserOp = encodeAbiParameters(
+      [
+        { type: 'address' },
+        { type: 'uint256' },
+        { type: 'bytes32' },
+        { type: 'bytes32' },
+        { type: 'uint256' },
+        { type: 'uint256' },
+        { type: 'uint256' },
+        { type: 'uint256' },
+        { type: 'uint256' },
+        { type: 'bytes32' },
+      ],
+      [
+        userOperation.sender,
+        userOperation.nonce,
+        hashedInitCode,
+        hashedCallData,
+        userOperation.callGasLimit,
+        userOperation.verificationGasLimit,
+        userOperation.preVerificationGas,
+        userOperation.maxFeePerGas,
+        userOperation.maxPriorityFeePerGas,
+        hashedPaymasterAndData,
+      ],
+    );
+    const encoded = encodeAbiParameters(
+      [{ type: 'bytes32' }, { type: 'address' }, { type: 'uint256' }],
+      [keccak256(packedUserOp), entryPoint, BigInt(chain)],
+    ) as `0x${string}`;
+    return keccak256(encoded);
+  } else if (entryPoint === ENTRY_POINT_0_7_ADDRESS) {
+    const userOperation = userOp as UserOp_0_7;
+    const hashedInitCode = keccak256(userOperation.initCode);
+    const hashedCallData = keccak256(userOperation.callData);
+    const hashedPaymasterAndData = keccak256(userOperation.paymasterAndData);
+    const packedUserOp = encodeAbiParameters(
+      [
+        { type: 'address' },
+        { type: 'uint256' },
+        { type: 'bytes32' },
+        { type: 'bytes32' },
+        { type: 'bytes32' },
+        { type: 'uint256' },
+        { type: 'bytes32' },
+        { type: 'bytes32' },
+      ],
+      [
+        userOperation.sender,
+        userOperation.nonce,
+        hashedInitCode,
+        hashedCallData,
+        userOperation.accountGasLimits,
+        userOperation.preVerificationGas,
+        userOperation.gasFees,
+        hashedPaymasterAndData,
+      ],
+    );
+    const encoded = encodeAbiParameters(
+      [{ type: 'bytes32' }, { type: 'address' }, { type: 'uint256' }],
+      [keccak256(packedUserOp), entryPoint, BigInt(chain)],
+    );
+    return keccak256(encoded);
+  }
+  return null;
+}
+
+const userOp = computed<UserOp | null>(() => {
+  const data = userOpData.value;
+  if (!transaction.value || !data) {
+    return null;
+  }
+  const userOps = getUserOps(transaction.value);
+  return (
+    userOps.find(
+      (userOp) =>
+        getUserOpHash(data.chainId, data.entryPoint, userOp) ===
+        userOpHash.value,
+    ) || null
+  );
+});
 
 const userOpEvent = computed(() => {
   if (!transactionReceipt.value) {
