@@ -3,7 +3,7 @@
     <div class="content">
       <div class="card">
         <form @submit.prevent="handleSubmit">
-          <input v-model="userOpHash" />
+          <input v-model="query" />
         </form>
         <div v-if="userOp">
           <div>chain id: {{ userOp.chainId }}</div>
@@ -84,18 +84,21 @@ const { alchemyApiKey, indexerEndpoint } = useEnv();
 
 const indexerService = new IndexerService(indexerEndpoint);
 
+const query = ref('');
 const userOpHash = ref('');
 const userOp = ref<TransactionUserOp | null>(null);
 const transaction = ref<Transaction | null>(null);
 const transactionReceipt = ref<TransactionReceipt | null>(null);
 
 async function handleSubmit(): Promise<void> {
-  userOp.value = null;
-  transaction.value = null;
-  const hash = userOpHash.value.trim().toLowerCase();
+  const hash = query.value.trim().toLowerCase();
   if (!isUserOpHash(hash)) {
     return;
   }
+  userOpHash.value = hash;
+  userOp.value = null;
+  transaction.value = null;
+  transactionReceipt.value = null;
   const transactionUserOp =
     await indexerService.getTransactionByUserOpHash(hash);
   if (!transactionUserOp) {
@@ -197,15 +200,15 @@ const userOpEvent = computed(() => {
   return event;
 });
 
-const actualGasUsed = computed<bigint | undefined>(
-  () => userOpEvent.value?.args.actualGasUsed,
+const actualGasUsed = computed<bigint | null>(() =>
+  userOpEvent.value ? userOpEvent.value.args.actualGasUsed : null,
 );
-const actualGasCost = computed<bigint | undefined>(
-  () => userOpEvent.value?.args.actualGasCost,
+const actualGasCost = computed<bigint | null>(() =>
+  userOpEvent.value ? userOpEvent.value.args.actualGasCost : null,
 );
-const actualGasFee = computed<bigint | undefined>(() => {
+const actualGasFee = computed<bigint | null>(() => {
   if (!actualGasCost.value || !actualGasUsed.value) {
-    return undefined;
+    return null;
   }
   return actualGasCost.value / actualGasUsed.value;
 });
