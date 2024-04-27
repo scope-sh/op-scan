@@ -8,7 +8,7 @@ import App from './App.vue';
 const routerHistory = createWebHistory();
 const router = createRouter({
   history: routerHistory,
-  routes: [{ path: '/op/:hash', component: Op }],
+  routes: [{ path: '/op/:hash', name: 'op', component: Op }],
 });
 
 const app = createApp(App);
