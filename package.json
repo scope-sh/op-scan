@@ -26,6 +26,7 @@
     "typecheck": "tsc --noEmit && vue-tsc --noEmit"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.0.18",
     "@tanstack/vue-table": "^8.16.0",
     "evm-providers": "^0.4.5",
     "viem": "^2.9.28",
