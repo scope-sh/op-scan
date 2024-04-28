@@ -13,91 +13,93 @@
             class="icon icon-error"
           />
         </div>
-        <div
-          v-if="userOpData && actualGasCost"
-          class="details"
-        >
-          <div class="description">
-            <div class="description-row">
-              Operation
-              <BlockInfo
-                :value="userOpData.nonce.toString()"
-                :label="`#${userOpData.nonce}`"
-                type="regular"
-                :chain="userOpData.chainId"
-              />
-              of account
-              <BlockInfo
-                :value="userOpData.sender"
-                :label="userOpData.sender"
-                type="address"
-                :chain="userOpData.chainId"
-              />
+        <div class="details">
+          <Transition>
+            <div
+              v-if="userOpData && actualGasCost"
+              class="description"
+            >
+              <div class="description-row">
+                Operation
+                <BlockInfo
+                  :value="userOpData.nonce.toString()"
+                  :label="`#${userOpData.nonce}`"
+                  type="regular"
+                  :chain="userOpData.chainId"
+                />
+                of account
+                <BlockInfo
+                  :value="userOpData.sender"
+                  :label="userOpData.sender"
+                  type="address"
+                  :chain="userOpData.chainId"
+                />
+              </div>
+              <div class="description-row">
+                Paid
+                <BlockInfo
+                  :value="actualGasCost.toString()"
+                  :label="formatEther(actualGasCost)"
+                  type="regular"
+                  :chain="userOpData.chainId"
+                />
+                via
+                <BlockInfo
+                  :value="userOpData.paymaster"
+                  :label="userOpData.paymaster"
+                  type="address"
+                  :chain="userOpData.chainId"
+                />
+              </div>
+              <div class="description-row">
+                Bundled by
+                <BlockInfo
+                  :value="userOpData.bundler"
+                  :label="userOpData.bundler"
+                  type="address"
+                  :chain="userOpData.chainId"
+                />
+                using
+                <BlockInfo
+                  :value="userOpData.entryPoint"
+                  :label="formatEntryPoint(userOpData.entryPoint)"
+                  type="address"
+                  :chain="userOpData.chainId"
+                />
+              </div>
+              <div class="description-row">
+                Settled on
+                <BlockInfo
+                  :value="userOpData.chainId.toString()"
+                  :label="getChainName(userOpData.chainId)"
+                  type="chain"
+                  :chain="userOpData.chainId"
+                />
+                {{
+                  formatRelativeTime(
+                    toRelativeTime(
+                      new Date(),
+                      new Date(1000 * userOpData.timestamp),
+                    ),
+                  )
+                }}
+                at block
+                <BlockInfo
+                  :value="userOpData.blockNumber.toString()"
+                  :label="userOpData.blockNumber.toString()"
+                  type="block"
+                  :chain="userOpData.chainId"
+                />
+                and transaction
+                <BlockInfo
+                  :value="userOpData.transactionHash"
+                  :label="userOpData.transactionHash"
+                  type="transaction"
+                  :chain="userOpData.chainId"
+                />
+              </div>
             </div>
-            <div class="description-row">
-              Paid
-              <BlockInfo
-                :value="actualGasCost.toString()"
-                :label="formatEther(actualGasCost)"
-                type="regular"
-                :chain="userOpData.chainId"
-              />
-              via
-              <BlockInfo
-                :value="userOpData.paymaster"
-                :label="userOpData.paymaster"
-                type="address"
-                :chain="userOpData.chainId"
-              />
-            </div>
-            <div class="description-row">
-              Bundled by
-              <BlockInfo
-                :value="userOpData.bundler"
-                :label="userOpData.bundler"
-                type="address"
-                :chain="userOpData.chainId"
-              />
-              using
-              <BlockInfo
-                :value="userOpData.entryPoint"
-                :label="formatEntryPoint(userOpData.entryPoint)"
-                type="address"
-                :chain="userOpData.chainId"
-              />
-            </div>
-            <div class="description-row">
-              Settled on
-              <BlockInfo
-                :value="userOpData.chainId.toString()"
-                :label="getChainName(userOpData.chainId)"
-                type="chain"
-                :chain="userOpData.chainId"
-              />
-              {{
-                formatRelativeTime(
-                  toRelativeTime(
-                    new Date(),
-                    new Date(1000 * userOpData.timestamp),
-                  ),
-                )
-              }}
-              at block
-              <BlockInfo
-                :value="userOpData.blockNumber.toString()"
-                :label="userOpData.blockNumber.toString()"
-                type="block"
-                :chain="userOpData.chainId"
-              />
-              and transaction
-              <BlockInfo
-                :value="userOpData.transactionHash"
-                :label="userOpData.transactionHash"
-                type="transaction"
-                :chain="userOpData.chainId"
-              />
-            </div>
-          </div>
+          </Transition>
 
           <div class="actions"></div>
         </div>
@@ -299,5 +301,15 @@ function fromWei(value: bigint | number, decimals: number): number {
   gap: 2px 8px;
   flex-wrap: wrap;
   align-items: center;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
