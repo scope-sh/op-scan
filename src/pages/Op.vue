@@ -2,70 +2,104 @@
   <div class="page">
     <div class="content">
       <div class="card">
-        <div v-if="userOpData">
-          <div>chain id: {{ userOpData.chainId }}</div>
-          <div>success: {{ userOpData.success }}</div>
-          <div>entry point: {{ userOpData.entryPoint }}</div>
-          <div>block number: {{ userOpData.blockNumber }}</div>
-          <div class="row-link">
-            transaction hash: {{ userOpData.transactionHash }}
-            <a
-              :href="
-                getTransactionExplorerUrl(
-                  userOpData.chainId,
-                  userOpData.transactionHash,
+        <div class="header">
+          <div class="hash">{{ hash }}</div>
+          <IconCheckCircled
+            v-if="userOpData && userOpData.success"
+            class="icon icon-success"
+          />
+          <IconCrossCircled
+            v-else-if="userOpData && !userOpData.success"
+            class="icon icon-error"
+          />
+        </div>
+        <div
+          v-if="userOpData && actualGasCost"
+          class="details"
+        >
+          <div class="description">
+            <div class="description-row">
+              Operation
+              <BlockInfo
+                :value="userOpData.nonce.toString()"
+                :label="`#${userOpData.nonce}`"
+                type="regular"
+                :chain="userOpData.chainId"
+              />
+              of account
+              <BlockInfo
+                :value="userOpData.sender"
+                :label="userOpData.sender"
+                type="address"
+                :chain="userOpData.chainId"
+              />
+            </div>
+            <div class="description-row">
+              Paid
+              <BlockInfo
+                :value="actualGasCost.toString()"
+                :label="formatEther(actualGasCost)"
+                type="regular"
+                :chain="userOpData.chainId"
+              />
+              via
+              <BlockInfo
+                :value="userOpData.paymaster"
+                :label="userOpData.paymaster"
+                type="address"
+                :chain="userOpData.chainId"
+              />
+            </div>
+            <div class="description-row">
+              Bundled by
+              <BlockInfo
+                :value="userOpData.bundler"
+                :label="userOpData.bundler"
+                type="address"
+                :chain="userOpData.chainId"
+              />
+              using
+              <BlockInfo
+                :value="userOpData.entryPoint"
+                :label="formatEntryPoint(userOpData.entryPoint)"
+                type="address"
+                :chain="userOpData.chainId"
+              />
+            </div>
+            <div class="description-row">
+              Settled on
+              <BlockInfo
+                :value="userOpData.chainId.toString()"
+                :label="getChainName(userOpData.chainId)"
+                type="chain"
+                :chain="userOpData.chainId"
+              />
+              {{
+                formatRelativeTime(
+                  toRelativeTime(
+                    new Date(),
+                    new Date(1000 * userOpData.timestamp),
+                  ),
                 )
-              "
-              target="_blank"
-            >
-              <IconEtherscan class="icon" />
-            </a>
+              }}
+              at block
+              <BlockInfo
+                :value="userOpData.blockNumber.toString()"
+                :label="userOpData.blockNumber.toString()"
+                type="block"
+                :chain="userOpData.chainId"
+              />
+              and transaction
+              <BlockInfo
+                :value="userOpData.transactionHash"
+                :label="userOpData.transactionHash"
+                type="transaction"
+                :chain="userOpData.chainId"
+              />
+            </div>
           </div>
-          <div class="row-link">
-            sender: {{ userOpData.sender }}
-            <a
-              :href="
-                getAddressExplorerUrl(userOpData.chainId, userOpData.sender)
-              "
-              target="_blank"
-            >
-              <IconEtherscan class="icon" />
-            </a>
-          </div>
-          <div class="row-link">
-            paymaster: {{ userOpData.paymaster }}
-            <a
-              :href="
-                getAddressExplorerUrl(userOpData.chainId, userOpData.paymaster)
-              "
-              target="_blank"
-            >
-              <IconEtherscan class="icon" />
-            </a>
-          </div>
-          <div class="row-link">
-            bundler: {{ userOpData.bundler }}
-            <a
-              :href="
-                getAddressExplorerUrl(userOpData.chainId, userOpData.bundler)
-              "
-              target="_blank"
-            >
-              <IconEtherscan class="icon" />
-            </a>
-          </div>
-          <div>nonce: {{ userOpData.nonce }}</div>
-        </div>
-        <div v-if="userOp">
-          <div>
-            calldata
-            <div class="hex">{{ userOp.callData }}</div>
-          </div>
-        </div>
-        <div v-if="actualGasCost && actualGasUsed && actualGasFee">
-          <div>gas used: {{ actualGasUsed }}</div>
-          <div>gas fee: {{ formatGasPrice(actualGasFee) }}</div>
-          <div>cost: {{ formatEther(actualGasCost) }}</div>
+
+          <div class="actions"></div>
         </div>
       </div>
     </div>
@@ -77,18 +111,25 @@ import { Address, Hex, formatUnits } from 'viem';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import IconEtherscan from '@/components/IconEtherscan.vue';
+import BlockInfo from '@/components/BlockInfo.vue';
+import IconCheckCircled from '@/components/IconCheckCircled.vue';
+import IconCrossCircled from '@/components/IconCrossCircled.vue';
 import useEnv from '@/composables/useEnv';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
 import IndexerService, { TransactionUserOp } from '@/services/indexer';
 import {
   Chain,
   getChainClient,
-  getExplorerUrl,
+  getChainName,
   parseChain,
 } from '@/utils/chains';
-import { getUserOpEvent, getUserOpHash, getUserOps } from '@/utils/entryPoint';
-import type { UserOp } from '@/utils/entryPoint';
+import { toRelativeTime } from '@/utils/conversion';
+import {
+  ENTRY_POINT_0_6_ADDRESS,
+  ENTRY_POINT_0_7_ADDRESS,
+  getUserOpEvent,
+} from '@/utils/entryPoint';
+import { formatRelativeTime } from '@/utils/formatting';
 
 const { alchemyApiKey, indexerEndpoint } = useEnv();
 const route = useRoute();
@@ -149,20 +190,6 @@ async function fetchTransactionReceipt(chain: Chain, hash: Hex): Promise<void> {
   transactionReceipt.value = await evmService.getTransactionReceipt(hash);
 }
 
-const userOp = computed<UserOp | null>(() => {
-  const data = userOpData.value;
-  if (!transaction.value || !data) {
-    return null;
-  }
-  const userOps = getUserOps(transaction.value);
-  return (
-    userOps.find(
-      (userOp) =>
-        getUserOpHash(data.chainId, data.entryPoint, userOp) === hash.value,
-    ) || null
-  );
-});
-
 const userOpEvent = computed(() => {
   if (!transactionReceipt.value) {
     return null;
@@ -170,25 +197,22 @@ const userOpEvent = computed(() => {
   return getUserOpEvent(transactionReceipt.value, hash.value);
 });
 
-const actualGasUsed = computed<bigint | null>(() =>
-  userOpEvent.value ? userOpEvent.value.actualGasUsed : null,
-);
 const actualGasCost = computed<bigint | null>(() =>
   userOpEvent.value ? userOpEvent.value.actualGasCost : null,
 );
-const actualGasFee = computed<bigint | null>(() => {
-  if (!actualGasCost.value || !actualGasUsed.value) {
-    return null;
-  }
-  return actualGasCost.value / actualGasUsed.value;
-});
 
 function formatEther(value: bigint): string {
   return `${formatNumber(fromWei(value, 18))} ETH`;
 }
 
-function formatGasPrice(value: bigint): string {
-  return `${formatNumber(fromWei(value, 9))} Gwei`;
+function formatEntryPoint(value: Address): string {
+  if (value === ENTRY_POINT_0_6_ADDRESS) {
+    return 'Entry Point 0.6';
+  }
+  if (value === ENTRY_POINT_0_7_ADDRESS) {
+    return 'Entry Point 0.7';
+  }
+  return value;
 }
 
 function formatNumber(value: number): string {
@@ -206,16 +230,6 @@ function fromWei(value: bigint | number, decimals: number): number {
   }
   return parseFloat(formatUnits(BigInt(value.toString()), decimals));
 }
-
-function getAddressExplorerUrl(chain: Chain, address: Address): string {
-  const explorerUrl = getExplorerUrl(chain);
-  return `${explorerUrl}/address/${address}`;
-}
-
-function getTransactionExplorerUrl(chain: Chain, hash: Hex): string {
-  const explorerUrl = getExplorerUrl(chain);
-  return `${explorerUrl}/tx/${hash}`;
-}
 </script>
 
 <style scoped>
@@ -228,6 +242,7 @@ function getTransactionExplorerUrl(chain: Chain, hash: Hex): string {
 }
 
 .content {
+  display: flex;
   width: 100%;
   max-width: 800px;
 }
@@ -235,49 +250,49 @@ function getTransactionExplorerUrl(chain: Chain, hash: Hex): string {
 .card {
   display: flex;
   flex-direction: column;
-  padding: 16px;
+  padding: 32px 20px;
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: 16px;
   background: var(--color-background-primary);
-  gap: 16px;
+  gap: 25px;
 }
 
-.hex {
-  --font-size: 13px;
-  --row-count: 4;
-  --line-height: 1.2;
-  --padding: 8px;
+.header {
+  display: flex;
+  gap: 10px;
+}
 
-  width: 100%;
-  height: calc(
-    var(--row-count) * var(--font-size) + (var(--row-count) - 1) *
-      (var(--line-height) - 1) * var(--font-size) + var(--padding) * 2
-  );
-  padding: var(--padding);
-  overflow: auto;
+.hash {
+  color: var(--color-text-secondary);
   font-family: var(--font-mono);
-  font-size: var(--font-size);
-  line-height: 1.2;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
-a {
-  color: inherit;
+  font-size: 16px;
+  font-weight: 200;
 }
 
 .icon {
-  width: 16px;
-  height: 16px;
-  opacity: 0.4;
-
-  &:hover {
-    opacity: 1;
-  }
+  width: 20px;
+  height: 20px;
 }
 
-.row-link {
+.icon-success {
+  color: var(--color-success);
+}
+
+.icon-error {
+  color: var(--color-error);
+}
+
+.description {
   display: flex;
-  gap: 4px;
+  gap: 10px;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+.description-row {
+  display: flex;
+  gap: 2px 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 </style>
