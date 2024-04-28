@@ -102,6 +102,11 @@ function getExplorerUrl(chainId: Chain): string | null {
   return chainData.blockExplorers?.default.url || null;
 }
 
+function parseChain(value: string): Chain | null {
+  const chain = CHAINS.find((chain) => value === chain.toString());
+  return chain ?? null;
+}
+
 export {
   CHAINS,
   DEFAULT_CHAIN,
@@ -120,5 +125,6 @@ export {
   getChainName,
   getEndpointUrl,
   getExplorerUrl,
+  parseChain,
 };
 export type { Chain };
