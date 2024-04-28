@@ -74,20 +74,27 @@ const href = computed(() => {
 
 <style scoped>
 a {
+  overflow: hidden;
   color: inherit;
   text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .block {
   display: flex;
   align-items: center;
-  padding: 4px 6px;
+  padding: 2px 3px;
   border: 1px dashed oklch(from var(--color-accent) 89.25% 0.079 h / 100%);
   border-radius: 2px;
   background: oklch(from var(--color-accent) l c h / 10%);
   color: var(--color-accent);
   cursor: pointer;
   gap: 4px;
+
+  @media (width >= 768px) {
+    padding: 4px 6px;
+  }
 
   @media (prefers-color-scheme: dark) {
     & {

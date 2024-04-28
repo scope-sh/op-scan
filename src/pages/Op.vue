@@ -245,11 +245,13 @@ function fromWei(value: bigint | number, decimals: number): number {
   display: flex;
   width: 100%;
   max-width: 800px;
+  padding: 8px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
+  max-width: 100%;
   padding: 32px 20px;
   border: 1px solid var(--color-border);
   border-radius: 16px;
@@ -263,10 +265,13 @@ function fromWei(value: bigint | number, decimals: number): number {
 }
 
 .hash {
+  overflow: hidden;
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
   font-size: 16px;
   font-weight: 200;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .icon {

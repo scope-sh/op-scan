@@ -72,11 +72,17 @@ function handleSubmit(): void {
 
 .content {
   display: flex;
+  gap: 48px;
   flex-direction: column;
   width: 100%;
   max-width: 1200px;
-  margin-top: 96px;
-  gap: 88px;
+  margin-top: 16px;
+  padding: 8px;
+
+  @media (width >= 768px) {
+    gap: 88px;
+    margin-top: 96px;
+  }
 }
 
 input {
