@@ -31,7 +31,22 @@ import '@fontsource-variable/jetbrains-mono';
     'Liberation Mono', 'Lucida Console', monospace;
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-primary: #141414;
+    --color-background-secondary: #191919;
+    --color-background-tertiary: #202020;
+    --color-background-quaternary: #242424;
+    --color-text-primary: #d5d2d6;
+    --color-text-secondary: #aea9b0;
+    --color-border: #4a4a4a;
+    --color-accent: oklch(76.32% 0.16 311.68deg);
+  }
+}
+
 body {
+  margin: 0;
+  background: var(--color-background-primary);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
 }

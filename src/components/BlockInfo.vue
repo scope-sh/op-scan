@@ -84,10 +84,17 @@ a {
   padding: 4px 6px;
   border: 1px dashed oklch(from var(--color-accent) 89.25% 0.079 h / 100%);
   border-radius: 2px;
-  background: oklch(from var(--color-accent) 96.8% 0.023 h / 50%);
+  background: oklch(from var(--color-accent) l c h / 10%);
   color: var(--color-accent);
   cursor: pointer;
   gap: 4px;
+
+  @media (prefers-color-scheme: dark) {
+    & {
+      border-color: oklch(from var(--color-accent) 59.25% 0.079 h / 100%);
+      background: oklch(from var(--color-accent) l c h / 10%);
+    }
+  }
 
   .icon {
     width: 14px;
