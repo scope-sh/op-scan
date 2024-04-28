@@ -93,6 +93,7 @@ import { Address, Hex, zeroAddress } from 'viem';
 import { computed, watch } from 'vue';
 
 import IconArrowRight from '@/components/IconArrowRight.vue';
+import useLabels from '@/composables/useLabels';
 import { Chain, getChainName } from '@/utils/chains';
 import { toRelativeTime } from '@/utils/conversion';
 import {
@@ -100,6 +101,8 @@ import {
   ENTRY_POINT_0_7_ADDRESS,
 } from '@/utils/entryPoint';
 import { formatRelativeTime } from '@/utils/formatting';
+
+const { getLabelText } = useLabels();
 
 const props = defineProps<{
   ops: UserOp[];
@@ -131,17 +134,20 @@ const columns = computed(() => [
   }),
   columnHelper.accessor('sender', {
     header: 'Sender',
-    cell: (cell) => cell.getValue(),
+    cell: (cell) =>
+      getAddressLabel(cell.row.getValue('chain'), cell.getValue()),
   }),
   columnHelper.accessor('bundler', {
     header: 'Bundler',
-    cell: (cell) => cell.getValue(),
+    cell: (cell) =>
+      getAddressLabel(cell.row.getValue('chain'), cell.getValue()),
   }),
   columnHelper.accessor('paymaster', {
     header: 'Paymaster',
     cell: (cell) => {
-      const value = cell.getValue();
-      return value === zeroAddress ? '—' : value;
+      const address = cell.getValue();
+      const value = getAddressLabel(cell.row.getValue('chain'), address);
+      return address === zeroAddress ? '—' : value;
     },
   }),
   columnHelper.accessor('entryPoint', {
@@ -188,6 +194,10 @@ watch(
     table.setPageIndex(props.page);
   },
 );
+
+function getAddressLabel(chain: Chain, address: Address): string {
+  return getLabelText(chain, address) || address;
+}
 </script>
 
 <script lang="ts">

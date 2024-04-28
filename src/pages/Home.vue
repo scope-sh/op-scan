@@ -18,15 +18,19 @@
 
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core';
-import { computed, onMounted, ref } from 'vue';
+import { Address } from 'viem';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import TableOpFeed, { UserOp as UserOpRow } from '@/components/TableOpFeed.vue';
 import useEnv from '@/composables/useEnv';
+import useLabels from '@/composables/useLabels';
 import IndexerService, { FeedUserOp } from '@/services/indexer';
+import { CHAINS, Chain } from '@/utils/chains';
 import { isUserOpHash } from '@/utils/validation/pattern';
 
 const router = useRouter();
+const { requestLabels } = useLabels();
 const { indexerEndpoint } = useEnv();
 
 onMounted(() => {
@@ -70,6 +74,27 @@ function handleSubmit(): void {
   }
   router.push({ name: 'op', params: { hash: query.value } });
 }
+
+const addresses = computed<Record<Chain, Address[]>>(() => {
+  return Object.fromEntries(
+    CHAINS.map((chain) => {
+      return [
+        chain,
+        ops.value
+          .filter((op) => op.chainId === chain)
+          .map((op) => [op.sender, op.bundler, op.paymaster])
+          .flat(),
+      ];
+    }),
+  ) as Record<Chain, Address[]>;
+});
+
+watch(addresses, () => {
+  for (const chain of CHAINS) {
+    const chainAddresses = addresses.value[chain];
+    requestLabels(chain, chainAddresses);
+  }
+});
 </script>
 
 <style scoped>

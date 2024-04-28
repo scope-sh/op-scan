@@ -30,7 +30,9 @@
                 of account
                 <BlockInfo
                   :value="userOpData.sender"
-                  :label="userOpData.sender"
+                  :label="
+                    getAddressLabel(userOpData.chainId, userOpData.sender)
+                  "
                   type="address"
                   :chain="userOpData.chainId"
                 />
@@ -46,7 +48,9 @@
                 via
                 <BlockInfo
                   :value="userOpData.paymaster"
-                  :label="userOpData.paymaster"
+                  :label="
+                    getAddressLabel(userOpData.chainId, userOpData.paymaster)
+                  "
                   type="address"
                   :chain="userOpData.chainId"
                 />
@@ -55,7 +59,9 @@
                 Bundled by
                 <BlockInfo
                   :value="userOpData.bundler"
-                  :label="userOpData.bundler"
+                  :label="
+                    getAddressLabel(userOpData.chainId, userOpData.bundler)
+                  "
                   type="address"
                   :chain="userOpData.chainId"
                 />
@@ -117,6 +123,7 @@ import BlockInfo from '@/components/BlockInfo.vue';
 import IconCheckCircled from '@/components/IconCheckCircled.vue';
 import IconCrossCircled from '@/components/IconCrossCircled.vue';
 import useEnv from '@/composables/useEnv';
+import useLabels from '@/composables/useLabels';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
 import IndexerService, { TransactionUserOp } from '@/services/indexer';
 import {
@@ -134,6 +141,7 @@ import {
 import { formatRelativeTime } from '@/utils/formatting';
 
 const { alchemyApiKey, indexerEndpoint } = useEnv();
+const { requestLabels, getLabelText } = useLabels();
 const route = useRoute();
 
 const hash = computed(() => route.params.hash as Hex);
@@ -203,6 +211,24 @@ const actualGasCost = computed<bigint | null>(() =>
   userOpEvent.value ? userOpEvent.value.actualGasCost : null,
 );
 
+const addresses = computed<Address[]>(() => {
+  if (!userOpData.value) {
+    return [];
+  }
+  return [
+    userOpData.value.sender,
+    userOpData.value.bundler,
+    userOpData.value.paymaster,
+  ];
+});
+
+watch(addresses, () => {
+  if (!userOpData.value) {
+    return;
+  }
+  requestLabels(userOpData.value.chainId, addresses.value);
+});
+
 function formatEther(value: bigint): string {
   return `${formatNumber(fromWei(value, 18))} ETH`;
 }
@@ -231,6 +257,10 @@ function fromWei(value: bigint | number, decimals: number): number {
     return parseFloat(formatUnits(value, decimals));
   }
   return parseFloat(formatUnits(BigInt(value.toString()), decimals));
+}
+
+function getAddressLabel(chain: Chain, address: Address): string {
+  return getLabelText(chain, address) || address;
 }
 </script>
 
