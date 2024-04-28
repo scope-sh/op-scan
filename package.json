@@ -31,6 +31,7 @@
     "@tanstack/vue-table": "^8.16.0",
     "@vueuse/core": "^10.9.0",
     "evm-providers": "^0.4.5",
+    "pinia": "^2.1.7",
     "viem": "^2.9.28",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0"
