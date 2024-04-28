@@ -101,6 +101,7 @@ input {
   border-radius: 4px;
   outline: none;
   background: var(--color-background-tertiary);
+  color: var(--color-text-primary);
   font-family: var(--font-mono);
   font-size: 16px;
 
