@@ -41,7 +41,11 @@
         >
           <router-link
             class="row"
-            :to="{ name: 'op', params: { hash: row.getValue('hash') } }"
+            :to="{
+              name: 'op',
+              params: { hash: row.getValue('hash') },
+              query: { chain: row.getValue('chain') },
+            }"
           >
             <td
               v-for="cell in row.getVisibleCells()"
