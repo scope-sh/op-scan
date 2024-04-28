@@ -18,6 +18,7 @@ import '@fontsource-variable/jetbrains-mono';
   --color-text-primary: #393939;
   --color-text-secondary: #6a6a6a;
   --color-border: #dadada;
+  --color-accent: #aa00e9;
   --font-sans: 'Inter Variable', -apple-system, 'BlinkMacSystemFont',
     avenir next, avenir, segoe ui, helvetica neue, helvetica, 'Ubuntu', roboto,
     noto, arial, sans-serif;

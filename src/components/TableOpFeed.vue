@@ -272,7 +272,7 @@ tr {
   right: 8px;
   width: 20px;
   height: 100%;
-  color: #aa00e9;
+  color: var(--color-accent);
 }
 
 tbody {
