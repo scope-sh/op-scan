@@ -125,7 +125,6 @@ async function fetch(): Promise<void> {
     return;
   }
   userOpData.value = transactionUserOp;
-  console.log(transactionUserOp);
   await Promise.all([
     fetchTransaction(
       transactionUserOp.chainId,
