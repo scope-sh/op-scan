@@ -35,45 +35,47 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          v-for="row in table.getRowModel().rows"
-          :key="row.id"
-        >
-          <router-link
-            class="row"
-            :to="{
-              name: 'op',
-              params: { hash: row.getValue('hash') },
-              query: { chain: row.getValue('chain') },
-            }"
+        <TransitionGroup name="list">
+          <tr
+            v-for="row in table.getRowModel().rows"
+            :key="row.id"
           >
-            <td
-              v-for="cell in row.getVisibleCells()"
-              :key="cell.id"
-              :class="{
-                left: cell.column.id === 'chain',
-                small: [
-                  'chain',
-                  'timestamp',
-                  'blockNumber',
-                  'entryPoint',
-                ].includes(cell.column.id),
-                hash: cell.column.id === 'transactionHash',
-                address:
-                  cell.column.id === 'sender' ||
-                  cell.column.id === 'bundler' ||
-                  cell.column.id === 'paymaster',
-                hide: cell.column.id === 'hash',
+            <router-link
+              class="row"
+              :to="{
+                name: 'op',
+                params: { hash: row.getValue('hash') },
+                query: { chain: row.getValue('chain') },
               }"
             >
-              <FlexRender
-                :render="cell.column.columnDef.cell"
-                :props="cell.getContext()"
-              />
-            </td>
-            <IconArrowRight class="icon" />
-          </router-link>
-        </tr>
+              <td
+                v-for="cell in row.getVisibleCells()"
+                :key="cell.id"
+                :class="{
+                  left: cell.column.id === 'chain',
+                  small: [
+                    'chain',
+                    'timestamp',
+                    'blockNumber',
+                    'entryPoint',
+                  ].includes(cell.column.id),
+                  hash: cell.column.id === 'transactionHash',
+                  address:
+                    cell.column.id === 'sender' ||
+                    cell.column.id === 'bundler' ||
+                    cell.column.id === 'paymaster',
+                  hide: cell.column.id === 'hash',
+                }"
+              >
+                <FlexRender
+                  :render="cell.column.columnDef.cell"
+                  :props="cell.getContext()"
+                />
+              </td>
+              <IconArrowRight class="icon" />
+            </router-link>
+          </tr>
+        </TransitionGroup>
       </tbody>
     </table>
   </div>
@@ -165,6 +167,7 @@ const table = useVueTable({
   get data() {
     return props.ops;
   },
+  getRowId: (row) => row.hash,
   columns: columns.value,
   getCoreRowModel: getCoreRowModel(),
   getPaginationRowModel: getPaginationRowModel(),
@@ -280,6 +283,7 @@ tr {
 
 tbody {
   color: var(--color-text-primary);
+  font-size: 14px;
 
   &:hover tr:hover {
     background: var(--color-background-tertiary);
@@ -288,6 +292,17 @@ tbody {
       display: initial;
     }
   }
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  transform: translateY(-12px);
+  opacity: 0;
 }
 
 .row {

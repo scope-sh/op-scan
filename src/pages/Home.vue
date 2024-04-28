@@ -17,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+import { useIntervalFn } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
@@ -32,11 +33,19 @@ onMounted(() => {
   fetch();
 });
 
+useIntervalFn(() => {
+  fetch();
+}, 1000);
+
 const ops = ref<FeedUserOp[]>([]);
 async function fetch(): Promise<void> {
   const LIMIT = 20;
   const indexerService = new IndexerService(indexerEndpoint);
-  ops.value = await indexerService.getLatestUserOps(LIMIT);
+  const startBlock = ops.value[0]?.blockTimestamp;
+  const newOps = await indexerService.getLatestUserOps(LIMIT, startBlock);
+  const opList = [...newOps, ...ops.value];
+  opList.sort((a, b) => b.blockTimestamp - a.blockTimestamp);
+  ops.value = opList.slice(0, LIMIT);
 }
 const opRows = computed(() =>
   ops.value.map((op) => {
