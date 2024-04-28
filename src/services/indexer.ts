@@ -10,6 +10,7 @@ interface HashUserOpResponse {
     {
       success: boolean;
       entryPoint: string;
+      blockTimestamp: number;
       blockNumber: number;
       transactionHash: string;
       sender: string;
@@ -25,6 +26,7 @@ interface ChainHashUserOpResponse {
     UserOp: {
       success: boolean;
       entryPoint: string;
+      blockTimestamp: number;
       blockNumber: number;
       transactionHash: string;
       sender: string;
@@ -39,6 +41,7 @@ interface TransactionUserOp {
   chainId: Chain;
   success: boolean;
   entryPoint: Address;
+  timestamp: number;
   blockNumber: number;
   transactionHash: Hex;
   sender: Address;
@@ -121,6 +124,7 @@ class Service {
         ) {
           success
           entryPoint
+          blockTimestamp
           blockNumber
           transactionHash
           sender
@@ -147,6 +151,7 @@ class Service {
           chainId: chain,
           success: userOp.success,
           entryPoint: userOp.entryPoint as Address,
+          timestamp: userOp.blockTimestamp,
           blockNumber: userOp.blockNumber,
           transactionHash: userOp.transactionHash as Hex,
           sender: userOp.sender as Address,
@@ -172,6 +177,7 @@ class Service {
       ) {
         success
         entryPoint
+        blockTimestamp
         blockNumber
         transactionHash
         sender
@@ -196,6 +202,7 @@ class Service {
         chainId: chain,
         success: userOp.success,
         entryPoint: userOp.entryPoint as Address,
+        timestamp: userOp.blockTimestamp,
         blockNumber: userOp.blockNumber,
         transactionHash: userOp.transactionHash as Hex,
         sender: userOp.sender as Address,
