@@ -32,6 +32,7 @@ import '@fontsource-variable/jetbrains-mono';
 }
 
 body {
+  color: var(--color-text-primary);
   font-family: var(--font-sans);
 }
 

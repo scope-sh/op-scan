@@ -212,7 +212,6 @@ table {
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   background: var(--color-background-secondary);
-  color: var(--color-text-primary);
   font-size: 16px;
 }
 
@@ -276,6 +275,8 @@ tr {
 }
 
 tbody {
+  color: var(--color-text-primary);
+
   &:hover tr:hover {
     background: var(--color-background-tertiary);
 
@@ -287,7 +288,7 @@ tbody {
 
 .row {
   display: flex;
-  color: initial;
+  color: inherit;
   text-decoration: none;
 }
 
