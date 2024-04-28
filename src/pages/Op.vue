@@ -81,7 +81,12 @@ import IconEtherscan from '@/components/IconEtherscan.vue';
 import useEnv from '@/composables/useEnv';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
 import IndexerService, { TransactionUserOp } from '@/services/indexer';
-import { Chain, getChainClient, getExplorerUrl } from '@/utils/chains';
+import {
+  Chain,
+  getChainClient,
+  getExplorerUrl,
+  parseChain,
+} from '@/utils/chains';
 import { getUserOpEvent, getUserOpHash, getUserOps } from '@/utils/entryPoint';
 import type { UserOp } from '@/utils/entryPoint';
 
@@ -89,6 +94,7 @@ const { alchemyApiKey, indexerEndpoint } = useEnv();
 const route = useRoute();
 
 const hash = computed(() => route.params.hash as Hex);
+const chain = computed(() => parseChain(route.query.chain as string));
 
 const indexerService = new IndexerService(indexerEndpoint);
 
@@ -112,13 +118,14 @@ async function fetch(): Promise<void> {
   userOpData.value = null;
   transaction.value = null;
   transactionReceipt.value = null;
-  const transactionUserOp = await indexerService.getTransactionByUserOpHash(
-    hash.value,
-  );
+  const transactionUserOp = chain.value
+    ? await indexerService.getUserOpByChainAndHash(chain.value, hash.value)
+    : await indexerService.getUserOpByHash(hash.value);
   if (!transactionUserOp) {
     return;
   }
   userOpData.value = transactionUserOp;
+  console.log(transactionUserOp);
   await Promise.all([
     fetchTransaction(
       transactionUserOp.chainId,

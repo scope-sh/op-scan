@@ -20,6 +20,21 @@ interface HashUserOpResponse {
   >;
 }
 
+interface ChainHashUserOpResponse {
+  data: {
+    UserOp: {
+      success: boolean;
+      entryPoint: string;
+      blockNumber: number;
+      transactionHash: string;
+      sender: string;
+      paymaster: string;
+      bundler: string;
+      nonce: string;
+    }[];
+  };
+}
+
 interface TransactionUserOp {
   chainId: Chain;
   success: boolean;
@@ -95,9 +110,7 @@ class Service {
     this.endpointUrl = endpointUrl;
   }
 
-  public async getTransactionByUserOpHash(
-    hash: Hex,
-  ): Promise<TransactionUserOp | null> {
+  public async getUserOpByHash(hash: Hex): Promise<TransactionUserOp | null> {
     const query = `{
       ${CHAINS.map((chain) => {
         return `UserOp_${chain}: UserOp(where: {
@@ -142,6 +155,54 @@ class Service {
           nonce: BigInt(userOp.nonce),
         };
       }
+    }
+    return null;
+  }
+
+  public async getUserOpByChainAndHash(
+    chain: Chain,
+    hash: Hex,
+  ): Promise<TransactionUserOp | null> {
+    const query = `{
+      UserOp(where: {
+        id: {
+          _eq: "${chain}-${hash}"
+        }
+      }
+      ) {
+        success
+        entryPoint
+        blockNumber
+        transactionHash
+        sender
+        paymaster
+        bundler
+        nonce
+      }
+    }`;
+
+    const response = await fetch(this.endpointUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ query }),
+    });
+
+    const json = (await response.json()) as ChainHashUserOpResponse;
+    const userOp = json.data.UserOp[0];
+    if (userOp) {
+      return {
+        chainId: chain,
+        success: userOp.success,
+        entryPoint: userOp.entryPoint as Address,
+        blockNumber: userOp.blockNumber,
+        transactionHash: userOp.transactionHash as Hex,
+        sender: userOp.sender as Address,
+        paymaster: userOp.paymaster as Address,
+        bundler: userOp.bundler as Address,
+        nonce: BigInt(userOp.nonce),
+      };
     }
     return null;
   }
