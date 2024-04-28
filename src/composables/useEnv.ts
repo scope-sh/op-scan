@@ -1,6 +1,7 @@
 interface EnvironmentVariables {
   alchemyApiKey: string;
   indexerEndpoint: string;
+  labelApiEndpoint: string;
 }
 
 function useEnv(): EnvironmentVariables {
@@ -8,6 +9,7 @@ function useEnv(): EnvironmentVariables {
   return {
     alchemyApiKey: env.VITE_ALCHEMY_API_KEY || '',
     indexerEndpoint: env.VITE_INDEXER_ENDPOINT || '',
+    labelApiEndpoint: env.VITE_LABEL_API_ENDPOINT || '',
   };
 }
 
