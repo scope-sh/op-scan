@@ -1,0 +1,26 @@
+<template>
+  <svg
+    viewBox="0 0 256 256"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect
+      width="256"
+      height="256"
+      rx="32"
+      fill="#F6EEF9"
+    />
+    <path
+      d="M16 48C16 30.3269 30.3269 16 48 16H137V90H16V48Z"
+      fill="#C987E1"
+    />
+    <path
+      d="M153 16H208C225.673 16 240 30.3269 240 48V208C240 225.673 225.673 240 208 240H153V16Z"
+      fill="#E18EFF"
+    />
+    <path
+      d="M16 106H137V240H48C30.3269 240 16 225.673 16 208V106Z"
+      fill="#EECDFA"
+    />
+  </svg>
+</template>
