@@ -116,7 +116,12 @@
             </div>
           </Transition>
 
-          <div class="actions"></div>
+          <Transition>
+            <ViewCallData
+              v-if="userOp"
+              :value="userOp.callData"
+            />
+          </Transition>
         </div>
       </div>
     </div>
@@ -132,6 +137,7 @@ import BlockInfo from '@/components/BlockInfo.vue';
 import IconArrowLeft from '@/components/IconArrowLeft.vue';
 import IconCheckCircled from '@/components/IconCheckCircled.vue';
 import IconCrossCircled from '@/components/IconCrossCircled.vue';
+import ViewCallData from '@/components/ViewCallData.vue';
 import useEnv from '@/composables/useEnv';
 import useLabels from '@/composables/useLabels';
 import EvmService, { Transaction, TransactionReceipt } from '@/services/evm';
@@ -146,7 +152,10 @@ import { toRelativeTime } from '@/utils/conversion';
 import {
   ENTRY_POINT_0_6_ADDRESS,
   ENTRY_POINT_0_7_ADDRESS,
+  UserOp,
   getUserOpEvent,
+  getUserOpHash,
+  getUserOps,
 } from '@/utils/entryPoint';
 import { formatRelativeTime } from '@/utils/formatting';
 
@@ -209,6 +218,20 @@ async function fetchTransactionReceipt(chain: Chain, hash: Hex): Promise<void> {
   const evmService = new EvmService(chain, client);
   transactionReceipt.value = await evmService.getTransactionReceipt(hash);
 }
+
+const userOp = computed<UserOp | null>(() => {
+  const data = userOpData.value;
+  if (!transaction.value || !data) {
+    return null;
+  }
+  const userOps = getUserOps(transaction.value);
+  return (
+    userOps.find(
+      (userOp) =>
+        getUserOpHash(data.chainId, data.entryPoint, userOp) === hash.value,
+    ) || null
+  );
+});
 
 const userOpEvent = computed(() => {
   if (!transactionReceipt.value) {
@@ -290,6 +313,12 @@ function getAddressLabel(chain: Chain, address: Address): string {
   width: 100%;
   max-width: 800px;
   padding: 8px;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 .icon {
