@@ -12,8 +12,8 @@ import '@fontsource-variable/jetbrains-mono';
 <style>
 :root {
   --color-background-primary: #fefefe;
-  --color-background-secondary: #efefef;
-  --color-background-tertiary: #e3e3e3;
+  --color-background-secondary: #f9f9f9;
+  --color-background-tertiary: #e9e9e9;
   --color-background-quaternary: #dcdcdc;
   --color-text-primary: #352e39;
   --color-text-secondary: #645a6a;
