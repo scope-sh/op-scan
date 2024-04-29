@@ -302,7 +302,7 @@ function getAddressLabel(chain: Chain, address: Address): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
   background: var(--color-background-secondary);
 }
 
