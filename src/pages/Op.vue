@@ -23,7 +23,7 @@
                 Operation
                 <BlockInfo
                   :value="userOpData.nonce.toString()"
-                  :label="`#${userOpData.nonce}`"
+                  :label="`#${formatNonce(userOpData.nonce)}`"
                   type="regular"
                   :chain="userOpData.chainId"
                 />
@@ -272,7 +272,19 @@ function formatEntryPoint(value: Address): string {
 }
 
 function getAddressLabel(chain: Chain, address: Address): string {
-  return getLabelText(chain, address) || address;
+  return getLabelText(chain, address) || formatAddress(address);
+}
+
+function formatAddress(address: Address): string {
+  return address.slice(0, 8) + '…' + address.slice(-6);
+}
+
+function formatNonce(nonce: bigint): string {
+  const nonceString = nonce.toString();
+  if (nonceString.length <= 10) {
+    return nonce.toString();
+  }
+  return `${nonceString.slice(0, 5)}…${nonceString.slice(-5)}`;
 }
 </script>
 
