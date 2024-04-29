@@ -88,6 +88,10 @@ function getChainClient(chainId: Chain): PublicClient {
   });
 }
 
+function getChainNativeSymbol(chainId: Chain): string {
+  return getChainData(chainId).nativeCurrency.symbol;
+}
+
 function getChainName(chainId: Chain): string {
   return getChainData(chainId).name;
 }
@@ -126,6 +130,7 @@ export {
   ARBITRUM_SEPOLIA,
   getChainClient,
   getChainData,
+  getChainNativeSymbol,
   getChainName,
   getEndpointUrl,
   getExplorerUrl,
