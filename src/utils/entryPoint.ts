@@ -7,6 +7,8 @@ import {
   decodeFunctionData,
   encodeAbiParameters,
   keccak256,
+  size,
+  slice,
 } from 'viem';
 
 import entryPointV_0_6_0Abi from '@/abi/entryPointV0_6_0';
@@ -51,6 +53,20 @@ interface UserOpEvent {
   actualGasCost: bigint;
   actualGasUsed: bigint;
 }
+
+interface Call {
+  to: Address;
+  data: Hex;
+  value: bigint;
+}
+
+interface ActionPart {
+  label: string;
+  type: 'text' | 'address';
+  value: string;
+}
+
+type Action = ActionPart[];
 
 type TxType =
   | typeof TX_TYPE_ENTRY_POINT_0_6
@@ -248,11 +264,330 @@ function getUserOpEvent(
   return event.args;
 }
 
+function decodeCallData(callData: Hex): Call[] {
+  if (size(callData) === 0) {
+    return [];
+  }
+  const selector = slice(callData, 0, 4);
+  switch (selector) {
+    case '0x34fcd5be': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'target',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'value',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'bytes',
+                    name: 'data',
+                    type: 'bytes',
+                  },
+                ],
+                internalType: 'struct Call[]',
+                name: 'calls',
+                type: 'tuple[]',
+              },
+            ],
+            name: 'executeBatch',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'executeBatch') {
+        return args[0].map((call) => ({
+          to: call.target,
+          value: call.value,
+          data: call.data,
+        }));
+      }
+      break;
+    }
+    case '0x0000189a': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'dest', type: 'address' },
+              { internalType: 'uint256', name: 'value', type: 'uint256' },
+              { internalType: 'bytes', name: 'func', type: 'bytes' },
+            ],
+            name: 'execute_ncC',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'execute_ncC') {
+        const [dest, value, func] = args;
+        return [{ to: dest, data: func, value }];
+      }
+      break;
+    }
+    case '0x00004680': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address[]', name: 'dest', type: 'address[]' },
+              { internalType: 'uint256[]', name: 'value', type: 'uint256[]' },
+              { internalType: 'bytes[]', name: 'func', type: 'bytes[]' },
+            ],
+            name: 'executeBatch_y6U',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'executeBatch_y6U') {
+        const [dest, value, func] = args;
+        return dest
+          .map((to, i) => ({
+            to,
+            data: func[i],
+            value: value[i],
+          }))
+          .filter((call): call is Call => !!call);
+      }
+      break;
+    }
+    case '0x9e5d4c49': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'dest', type: 'address' },
+              { internalType: 'uint256', name: 'value', type: 'uint256' },
+              { internalType: 'bytes', name: 'func', type: 'bytes' },
+            ],
+            name: 'executeCall',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'executeCall') {
+        return [
+          {
+            to: args[0] as Address,
+            value: args[1] as bigint,
+            data: args[2] as Hex,
+          },
+        ];
+      }
+      break;
+    }
+    case '0xb61d27f6': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'dest', type: 'address' },
+              { internalType: 'uint256', name: 'value', type: 'uint256' },
+              { internalType: 'bytes', name: 'func', type: 'bytes' },
+            ],
+            name: 'execute',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'execute') {
+        return [
+          {
+            to: args[0] as Address,
+            value: args[1] as bigint,
+            data: args[2] as Hex,
+          },
+        ];
+      }
+      break;
+    }
+    case '0x51945447': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              { internalType: 'address', name: 'dest', type: 'address' },
+              { internalType: 'uint256', name: 'value', type: 'uint256' },
+              { internalType: 'bytes', name: 'func', type: 'bytes' },
+              { internalType: 'uint8', name: 'mode', type: 'uint8' },
+            ],
+            name: 'execute',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'execute') {
+        return [
+          {
+            to: args[0] as Address,
+            value: args[1] as bigint,
+            data: args[2] as Hex,
+          },
+        ];
+      }
+      break;
+    }
+    case '0x9faf00f4': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'uint256',
+                name: 'x',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint256',
+                name: 'y',
+                type: 'uint256',
+              },
+              {
+                internalType: 'address',
+                name: 'signerFactory',
+                type: 'address',
+              },
+              {
+                components: [
+                  {
+                    internalType: 'address',
+                    name: 'target',
+                    type: 'address',
+                  },
+                  {
+                    internalType: 'uint256',
+                    name: 'value',
+                    type: 'uint256',
+                  },
+                  {
+                    internalType: 'bytes',
+                    name: 'data',
+                    type: 'bytes',
+                  },
+                ],
+                internalType: 'struct Call[]',
+                name: 'calls',
+                type: 'tuple[]',
+              },
+            ],
+            name: 'executeAndDeployPasskey',
+            outputs: [
+              {
+                internalType: 'bytes[]',
+                name: '',
+                type: 'bytes[]',
+              },
+            ],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'executeAndDeployPasskey') {
+        const [, , , calls] = args;
+        return calls.map((call) => ({
+          to: call.target,
+          data: call.data,
+          value: call.value,
+        }));
+      }
+      break;
+    }
+    case '0x541d63c8': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+              {
+                internalType: 'bytes',
+                name: 'data',
+                type: 'bytes',
+              },
+              {
+                internalType: 'uint8',
+                name: 'operation',
+                type: 'uint8',
+              },
+            ],
+            name: 'executeUserOpWithErrorString',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'executeUserOpWithErrorString') {
+        return [
+          {
+            to: args[0] as Address,
+            value: args[1] as bigint,
+            data: args[2] as Hex,
+          },
+        ];
+      }
+    }
+  }
+  return [];
+}
+
+function toAction(call: Call): Action {
+  function formatAddress(address: Address): string {
+    return `${slice(address, 0, 6)}...${slice(address, -4)}`;
+  }
+
+  const parts: ActionPart[] = [
+    { label: 'Call function', type: 'text', value: '' },
+    { label: slice(call.data, 0, 4), type: 'text', value: '' },
+    { label: 'in contract', type: 'text', value: '' },
+    { label: formatAddress(call.to), type: 'address', value: '' },
+  ];
+  return parts;
+}
+
 export {
   ENTRY_POINT_0_6_ADDRESS,
   ENTRY_POINT_0_7_ADDRESS,
+  toAction,
+  decodeCallData,
   getUserOps,
   getUserOpHash,
   getUserOpEvent,
 };
-export type { UserOp };
+export type { Action, Call, UserOp };
