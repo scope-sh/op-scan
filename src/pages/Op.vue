@@ -41,7 +41,7 @@
                 Paid
                 <BlockInfo
                   :value="actualGasCost.toString()"
-                  :label="formatEther(actualGasCost)"
+                  :label="formatNative(userOpData.chainId, actualGasCost)"
                   type="regular"
                   :chain="userOpData.chainId"
                 />
@@ -111,8 +111,9 @@
 
           <Transition>
             <ViewCallData
-              v-if="userOp"
+              v-if="userOp && userOpData"
               :value="userOp.callData"
+              :chain="userOpData.chainId"
             />
           </Transition>
         </div>
@@ -122,7 +123,7 @@
 </template>
 
 <script setup lang="ts">
-import { Address, Hex, formatUnits, zeroAddress } from 'viem';
+import { Address, Hex, zeroAddress } from 'viem';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -149,7 +150,7 @@ import {
   getUserOpHash,
   getUserOps,
 } from '@/utils/entryPoint';
-import { formatRelativeTime } from '@/utils/formatting';
+import { formatRelativeTime, formatNative } from '@/utils/formatting';
 
 const { indexerEndpoint } = useEnv();
 const { requestLabels, getLabelText } = useLabels();
@@ -260,10 +261,6 @@ watch(addresses, () => {
   requestLabels(userOpData.value.chainId, addresses.value);
 });
 
-function formatEther(value: bigint): string {
-  return `${formatNumber(fromWei(value, 18))} ETH`;
-}
-
 function formatEntryPoint(value: Address): string {
   if (value === ENTRY_POINT_0_6_ADDRESS) {
     return 'Entry Point 0.6';
@@ -272,22 +269,6 @@ function formatEntryPoint(value: Address): string {
     return 'Entry Point 0.7';
   }
   return value;
-}
-
-function formatNumber(value: number): string {
-  const valueFormat = new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
-  });
-  return valueFormat.format(value);
-}
-
-function fromWei(value: bigint | number, decimals: number): number {
-  if (typeof value === 'bigint') {
-    return parseFloat(formatUnits(value, decimals));
-  }
-  return parseFloat(formatUnits(BigInt(value.toString()), decimals));
 }
 
 function getAddressLabel(chain: Chain, address: Address): string {

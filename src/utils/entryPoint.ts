@@ -15,6 +15,7 @@ import entryPointV_0_6_0Abi from '@/abi/entryPointV0_6_0';
 import entryPointV_0_7_0Abi from '@/abi/entryPointV0_7_0';
 
 import { Chain } from './chains';
+import { formatNative } from './formatting';
 
 interface UserOp_0_6 {
   sender: Address;
@@ -613,9 +614,23 @@ function decodeCallData(callData: Hex): Call[] {
   return [];
 }
 
-function toAction(call: Call): Action {
+function toAction(chain: Chain, call: Call): Action {
   function formatAddress(address: Address): string {
     return `${slice(address, 0, 6)}...${slice(address, -4)}`;
+  }
+
+  if (call.value > 0n && size(call.data) === 0) {
+    // Native asset transfer
+    return [
+      { label: 'Transfer', type: 'text', value: '' },
+      {
+        label: formatNative(chain, call.value),
+        type: 'text',
+        value: '',
+      },
+      { label: 'to', type: 'text', value: '' },
+      { label: formatAddress(call.to), type: 'address', value: '' },
+    ];
   }
 
   const parts: ActionPart[] = [

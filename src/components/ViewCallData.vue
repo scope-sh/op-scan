@@ -18,7 +18,7 @@
               <div class="action-index">{{ callIndex + 1 }}</div>
               <div class="action-description">
                 <span
-                  v-for="(part, partIndex) in toAction(call)"
+                  v-for="(part, partIndex) in toAction(chain, call)"
                   :key="partIndex"
                   class="action-part"
                 >
@@ -70,9 +70,11 @@ import { Hex } from 'viem';
 import { computed } from 'vue';
 
 import IconChevronDown from '@/components/IconChevronDown.vue';
+import { Chain } from '@/utils/chains';
 import { decodeCallData, toAction, Call } from '@/utils/entryPoint';
 
 const props = defineProps<{
+  chain: Chain;
   value: Hex;
 }>();
 
