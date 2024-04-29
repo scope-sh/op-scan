@@ -39,7 +39,7 @@ onMounted(() => {
 
 useIntervalFn(() => {
   fetch();
-}, 1000);
+}, 5000);
 
 const ops = ref<FeedUserOp[]>([]);
 async function fetch(): Promise<void> {
