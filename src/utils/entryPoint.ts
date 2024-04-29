@@ -62,9 +62,8 @@ interface Call {
 }
 
 interface ActionPart {
-  label: string;
-  type: 'text' | 'address';
   value: string;
+  type: 'text' | 'value' | 'address';
 }
 
 type Action = ActionPart[];
@@ -619,25 +618,32 @@ function toAction(chain: Chain, call: Call): Action {
     return `${slice(address, 0, 6)}...${slice(address, -4)}`;
   }
 
-  if (call.value > 0n && size(call.data) === 0) {
-    // Native asset transfer
-    return [
-      { label: 'Transfer', type: 'text', value: '' },
-      {
-        label: formatNative(chain, call.value),
-        type: 'text',
-        value: '',
-      },
-      { label: 'to', type: 'text', value: '' },
-      { label: formatAddress(call.to), type: 'address', value: '' },
-    ];
+  if (size(call.data) === 0) {
+    if (call.value === 0n) {
+      return [
+        { value: 'Call', type: 'text' },
+        { value: formatAddress(call.to), type: 'address' },
+        { value: 'contract', type: 'text' },
+      ];
+    } else {
+      // Native asset transfer
+      return [
+        { value: 'Transfer', type: 'text' },
+        {
+          value: formatNative(chain, call.value),
+          type: 'value',
+        },
+        { value: 'to', type: 'text' },
+        { value: formatAddress(call.to), type: 'address' },
+      ];
+    }
   }
 
   const parts: ActionPart[] = [
-    { label: 'Call function', type: 'text', value: '' },
-    { label: slice(call.data, 0, 4), type: 'text', value: '' },
-    { label: 'in contract', type: 'text', value: '' },
-    { label: formatAddress(call.to), type: 'address', value: '' },
+    { value: 'Call function', type: 'text' },
+    { value: slice(call.data, 0, 4), type: 'value' },
+    { value: 'in contract', type: 'text' },
+    { value: formatAddress(call.to), type: 'address' },
   ];
   return parts;
 }
