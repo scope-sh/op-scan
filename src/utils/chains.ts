@@ -1,4 +1,3 @@
-import { alchemy } from 'evm-providers';
 import {
   PublicClient,
   createPublicClient,
@@ -81,8 +80,8 @@ function getChainData(chainId: Chain): ChainData {
   }
 }
 
-function getChainClient(chainId: Chain, alchemyKey: string): PublicClient {
-  const endpointUrl = getEndpointUrl(chainId, alchemyKey);
+function getChainClient(chainId: Chain): PublicClient {
+  const endpointUrl = getEndpointUrl(chainId);
   return createPublicClient({
     chain: getChainData(chainId),
     transport: http(endpointUrl),
@@ -93,8 +92,13 @@ function getChainName(chainId: Chain): string {
   return getChainData(chainId).name;
 }
 
-function getEndpointUrl(chainId: Chain, alchemyKey: string): string {
-  return alchemy(chainId, alchemyKey);
+function getEndpointUrl(chainId: Chain): string {
+  const chainData = getChainData(chainId);
+  const endpointUrl = chainData.rpcUrls.default.http[0];
+  if (!endpointUrl) {
+    throw new Error(`No endpoint URL for chain ${chainId}`);
+  }
+  return endpointUrl;
 }
 
 function getExplorerUrl(chainId: Chain): string | null {

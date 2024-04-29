@@ -151,7 +151,7 @@ import {
 } from '@/utils/entryPoint';
 import { formatRelativeTime } from '@/utils/formatting';
 
-const { alchemyApiKey, indexerEndpoint } = useEnv();
+const { indexerEndpoint } = useEnv();
 const { requestLabels, getLabelText } = useLabels();
 const route = useRoute();
 
@@ -200,13 +200,13 @@ async function fetch(): Promise<void> {
 }
 
 async function fetchTransaction(chain: Chain, hash: Hex): Promise<void> {
-  const client = getChainClient(chain, alchemyApiKey);
+  const client = getChainClient(chain);
   const evmService = new EvmService(chain, client);
   transaction.value = await evmService.getTransaction(hash);
 }
 
 async function fetchTransactionReceipt(chain: Chain, hash: Hex): Promise<void> {
-  const client = getChainClient(chain, alchemyApiKey);
+  const client = getChainClient(chain);
   const evmService = new EvmService(chain, client);
   transactionReceipt.value = await evmService.getTransactionReceipt(hash);
 }
