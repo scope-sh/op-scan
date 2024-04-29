@@ -562,6 +562,52 @@ function decodeCallData(callData: Hex): Call[] {
           },
         ];
       }
+      break;
+    }
+    case '0x7bb37428': {
+      const { functionName, args } = decodeFunctionData({
+        abi: [
+          {
+            inputs: [
+              {
+                internalType: 'address',
+                name: 'to',
+                type: 'address',
+              },
+              {
+                internalType: 'uint256',
+                name: 'value',
+                type: 'uint256',
+              },
+              {
+                internalType: 'bytes',
+                name: 'data',
+                type: 'bytes',
+              },
+              {
+                internalType: 'uint8',
+                name: 'operation',
+                type: 'uint8',
+              },
+            ],
+            name: 'executeUserOp',
+            outputs: [],
+            stateMutability: 'nonpayable',
+            type: 'function',
+          },
+        ],
+        data: callData,
+      });
+      if (functionName === 'executeUserOp') {
+        return [
+          {
+            to: args[0] as Address,
+            value: args[1] as bigint,
+            data: args[2] as Hex,
+          },
+        ];
+      }
+      break;
     }
   }
   return [];
