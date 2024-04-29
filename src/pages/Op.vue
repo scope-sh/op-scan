@@ -1,6 +1,13 @@
 <template>
   <div class="page">
     <div class="content">
+      <router-link
+        :to="{ name: 'home' }"
+        class="back"
+      >
+        <IconArrowLeft class="icon" />
+        Go back
+      </router-link>
       <div class="card">
         <div class="header">
           <div class="hash">{{ hash }}</div>
@@ -122,6 +129,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import BlockInfo from '@/components/BlockInfo.vue';
+import IconArrowLeft from '@/components/IconArrowLeft.vue';
 import IconCheckCircled from '@/components/IconCheckCircled.vue';
 import IconCrossCircled from '@/components/IconCrossCircled.vue';
 import useEnv from '@/composables/useEnv';
@@ -277,9 +285,42 @@ function getAddressLabel(chain: Chain, address: Address): string {
 
 .content {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
   max-width: 800px;
   padding: 8px;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-success {
+  color: var(--color-success);
+}
+
+.icon-error {
+  color: var(--color-error);
+}
+
+.back {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  text-decoration: none;
+  gap: 4px;
+
+  &:hover {
+    color: var(--color-text-primary);
+  }
+
+  .icon {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .card {
@@ -306,19 +347,6 @@ function getAddressLabel(chain: Chain, address: Address): string {
   font-weight: 200;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.icon {
-  width: 20px;
-  height: 20px;
-}
-
-.icon-success {
-  color: var(--color-success);
-}
-
-.icon-error {
-  color: var(--color-error);
 }
 
 .description {
