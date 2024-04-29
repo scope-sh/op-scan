@@ -45,8 +45,9 @@
                   type="regular"
                   :chain="userOpData.chainId"
                 />
-                via
+                by
                 <BlockInfo
+                  v-if="userOpData.paymaster !== zeroAddress"
                   :value="userOpData.paymaster"
                   :label="
                     getAddressLabel(userOpData.chainId, userOpData.paymaster)
@@ -54,6 +55,7 @@
                   type="address"
                   :chain="userOpData.chainId"
                 />
+                <template v-else>account itself</template>
               </div>
               <div class="description-row">
                 Bundled by
@@ -115,7 +117,7 @@
 </template>
 
 <script setup lang="ts">
-import { Address, Hex, formatUnits } from 'viem';
+import { Address, Hex, formatUnits, zeroAddress } from 'viem';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
