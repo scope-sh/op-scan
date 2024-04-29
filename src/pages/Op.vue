@@ -124,7 +124,7 @@
 <script setup lang="ts">
 import { Address, Hex, formatUnits, zeroAddress } from 'viem';
 import { computed, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import BlockInfo from '@/components/BlockInfo.vue';
 import IconCheckCircled from '@/components/IconCheckCircled.vue';
@@ -153,6 +153,7 @@ import { formatRelativeTime } from '@/utils/formatting';
 
 const { indexerEndpoint } = useEnv();
 const { requestLabels, getLabelText } = useLabels();
+const router = useRouter();
 const route = useRoute();
 
 const hash = computed(() => route.params.hash as Hex);
@@ -187,6 +188,11 @@ async function fetch(): Promise<void> {
     return;
   }
   userOpData.value = transactionUserOp;
+  router.push({
+    query: {
+      chain: transactionUserOp.chainId.toString(),
+    },
+  });
   await Promise.all([
     fetchTransaction(
       transactionUserOp.chainId,
