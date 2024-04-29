@@ -1,5 +1,9 @@
 <template>
-  <div id="app">
+  <div
+    id="app"
+    :class="{ 'background-gray': isOpPage }"
+  >
+    <AppHeader />
     <router-view />
   </div>
 </template>
@@ -7,6 +11,13 @@
 <script setup lang="ts">
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+import AppHeader from '@/components/AppHeader.vue';
+
+const route = useRoute();
+const isOpPage = computed(() => route.name === 'op');
 </script>
 
 <style>
@@ -45,10 +56,16 @@ import '@fontsource-variable/jetbrains-mono';
 }
 
 body {
+  height: 100%;
+  min-height: 100vh;
   margin: 0;
   background: var(--color-background-primary);
   color: var(--color-text-primary);
   font-family: var(--font-sans);
+
+  &:has(.background-gray) {
+    background: var(--color-background-secondary);
+  }
 }
 
 /* Reset */
@@ -59,8 +76,7 @@ body {
   box-sizing: border-box;
 }
 
-html,
-body {
+html {
   height: 100%;
 }
 

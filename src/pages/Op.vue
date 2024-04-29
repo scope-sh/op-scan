@@ -1,13 +1,6 @@
 <template>
   <div class="page">
     <div class="content">
-      <router-link
-        :to="{ name: 'home' }"
-        class="back"
-      >
-        <IconArrowLeft class="icon" />
-        Go back
-      </router-link>
       <div class="card">
         <div class="header">
           <div class="hash">{{ hash }}</div>
@@ -134,7 +127,6 @@ import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import BlockInfo from '@/components/BlockInfo.vue';
-import IconArrowLeft from '@/components/IconArrowLeft.vue';
 import IconCheckCircled from '@/components/IconCheckCircled.vue';
 import IconCrossCircled from '@/components/IconCrossCircled.vue';
 import ViewCallData from '@/components/ViewCallData.vue';
@@ -302,17 +294,20 @@ function getAddressLabel(chain: Chain, address: Address): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
   background: var(--color-background-secondary);
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   width: 100%;
   max-width: 800px;
+  margin-top: 16px;
   padding: 8px;
+
+  @media (width >= 768px) {
+    margin-top: 10vh;
+  }
 }
 
 .details {
