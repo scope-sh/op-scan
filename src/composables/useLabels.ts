@@ -20,8 +20,8 @@ function useLabels(): UseLabels {
     // Fetch a label for every address only once
     const addressSet = new Set<Address>();
     for (const address of addresses) {
-      const existingLabel = store.getLabel(chain, address);
-      if (!existingLabel) {
+      const hasLabel = store.hasLabel(chain, address);
+      if (!hasLabel) {
         addressSet.add(address);
       }
     }
@@ -30,9 +30,13 @@ function useLabels(): UseLabels {
       return;
     }
     const labelService = new LabelService(chain);
-    const labels = await labelService.getLabels(uniqueAddresses);
-    if (Object.keys(labels).length === 0) {
-      return;
+    const labels: Record<Address, Label | null> =
+      await labelService.getLabels(uniqueAddresses);
+    // Add addresses that are missing labels
+    for (const address of uniqueAddresses) {
+      if (!labels[address]) {
+        labels[address] = null;
+      }
     }
     store.addLabels(chain, labels);
   }

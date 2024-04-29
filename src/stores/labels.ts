@@ -6,11 +6,19 @@ import { Label } from '@/services/labels.js';
 import { Chain } from '@/utils/chains';
 
 const store = defineStore('labels', () => {
-  const labels = ref<Partial<Record<Chain, Record<Address, Label>>>>({});
+  const labels = ref<Partial<Record<Chain, Record<Address, Label | null>>>>({});
 
-  function addLabels(chain: Chain, value: Record<Address, Label>): void {
+  function addLabels(chain: Chain, value: Record<Address, Label | null>): void {
     const chainLabels = labels.value[chain] || {};
     labels.value[chain] = { ...chainLabels, ...value };
+  }
+
+  function hasLabel(chain: Chain, address: Address): boolean {
+    const chainLabels = labels.value[chain];
+    if (!chainLabels) {
+      return false;
+    }
+    return chainLabels[address] !== undefined;
   }
 
   function getLabel(chain: Chain, address: Address): Label | null {
@@ -23,6 +31,7 @@ const store = defineStore('labels', () => {
 
   return {
     addLabels,
+    hasLabel,
     getLabel,
   };
 });
