@@ -1,7 +1,7 @@
 {
   "name": "op-scan",
   "version": "1.0.0",
-  "description": "Op Scan",
+  "description": "Multichain UserOp search",
   "author": {
     "name": "Timur Badretdinov",
     "url": "https://github.com/Destiner"
