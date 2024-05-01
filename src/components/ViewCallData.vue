@@ -43,7 +43,7 @@
             <div class="action-details">
               <div class="action-detail">
                 <div class="action-detail-label">Address</div>
-                <div class="action-detail-value">
+                <div class="action-detail-value action-detail-address">
                   {{ getAddressLabel(call.to, false) }}
                   <a
                     :href="getAddressExplorerUrl(chain, call.to)"
@@ -331,6 +331,10 @@ function getAddressExplorerUrl(chain: Chain, address: Address): string {
 .action-part.highlight {
   color: var(--color-accent);
   font-family: var(--font-mono);
+}
+
+.action-detail-address {
+  display: flex;
 }
 
 .call-data {
