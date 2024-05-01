@@ -10,7 +10,7 @@
     "vue",
     "starter"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git://github.com/scope-sh/op-scan.git"
