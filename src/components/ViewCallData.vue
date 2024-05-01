@@ -227,7 +227,6 @@ function getAddressExplorerUrl(chain: Chain, address: Address): string {
 }
 
 .action-detail-value {
-  display: flex;
   align-items: center;
   gap: 4px;
   width: calc(100% - 120px);
