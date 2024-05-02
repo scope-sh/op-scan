@@ -14,6 +14,7 @@
           />
         </div>
         <div class="details">
+          <div v-if="!userOpData">…</div>
           <Transition>
             <div
               v-if="userOpData && actualGasCost"
@@ -123,6 +124,7 @@
 </template>
 
 <script setup lang="ts">
+import { useIntervalFn } from '@vueuse/core';
 import { Address, Hex, zeroAddress } from 'viem';
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -177,6 +179,12 @@ watch(
     immediate: true,
   },
 );
+
+useIntervalFn(() => {
+  if (hash.value && !userOpData.value) {
+    fetch();
+  }
+}, 5000);
 
 async function fetch(): Promise<void> {
   userOpData.value = null;
