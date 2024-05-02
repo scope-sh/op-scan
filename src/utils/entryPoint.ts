@@ -614,15 +614,11 @@ function decodeCallData(callData: Hex): Call[] {
 }
 
 function toAction(chain: Chain, call: Call): Action {
-  function formatAddress(address: Address): string {
-    return `${slice(address, 0, 6)}...${slice(address, -4)}`;
-  }
-
   if (size(call.data) === 0) {
     if (call.value === 0n) {
       return [
         { value: 'Call', type: 'text' },
-        { value: formatAddress(call.to), type: 'address' },
+        { value: call.to, type: 'address' },
         { value: 'contract', type: 'text' },
       ];
     } else {
@@ -634,7 +630,7 @@ function toAction(chain: Chain, call: Call): Action {
           type: 'value',
         },
         { value: 'to', type: 'text' },
-        { value: formatAddress(call.to), type: 'address' },
+        { value: call.to, type: 'address' },
       ];
     }
   }
@@ -643,7 +639,7 @@ function toAction(chain: Chain, call: Call): Action {
     { value: 'Call function', type: 'text' },
     { value: slice(call.data, 0, 4), type: 'value' },
     { value: 'in contract', type: 'text' },
-    { value: formatAddress(call.to), type: 'address' },
+    { value: call.to, type: 'address' },
   ];
   return parts;
 }

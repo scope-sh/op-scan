@@ -44,7 +44,7 @@
               <div class="action-detail">
                 <div class="action-detail-label">Address</div>
                 <div class="action-detail-value action-detail-address">
-                  {{ getAddressLabel(call.to, false) }}
+                  {{ call.to }}
                   <a
                     :href="getAddressExplorerUrl(chain, call.to)"
                     target="_blank"
