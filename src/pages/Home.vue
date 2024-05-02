@@ -1,12 +1,23 @@
 <template>
   <div class="page">
     <div class="content">
-      <form @submit.prevent="handleSubmit">
-        <input
-          v-model="query"
-          placeholder="Enter UserOp hash"
-        />
-      </form>
+      <div class="header">
+        <form @submit.prevent="handleSubmit">
+          <input
+            v-model="query"
+            placeholder="Enter UserOp hash"
+          />
+        </form>
+        <div class="chain-list">
+          <IconArbitrum class="chain" />
+          <IconBase class="chain" />
+          <IconEthereum class="chain" />
+          <IconOptimism class="chain" />
+          <IconPolygon class="chain" />
+          <span>& testnets</span>
+        </div>
+      </div>
+
       <TableOpFeed
         :ops="opRows"
         :per-page="20"
@@ -22,6 +33,11 @@ import { Address } from 'viem';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
+import IconArbitrum from '@/components/IconArbitrum.vue';
+import IconBase from '@/components/IconBase.vue';
+import IconEthereum from '@/components/IconEthereum.vue';
+import IconOptimism from '@/components/IconOptimism.vue';
+import IconPolygon from '@/components/IconPolygon.vue';
 import TableOpFeed, { UserOp as UserOpRow } from '@/components/TableOpFeed.vue';
 import useEnv from '@/composables/useEnv';
 import useLabels from '@/composables/useLabels';
@@ -133,5 +149,23 @@ input {
   &:focus {
     background: var(--color-background-quaternary);
   }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+}
+
+.chain-list {
+  display: flex;
+  gap: 8px;
+}
+
+.chain {
+  width: 16px;
+  height: 16px;
 }
 </style>
