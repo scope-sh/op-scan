@@ -56,11 +56,12 @@ const ops = ref<FeedUserOp[]>([]);
 async function fetch(): Promise<void> {
   const LIMIT = 20;
   const indexerService = new IndexerService(indexerEndpoint);
-  const startBlock = ops.value[0]?.blockTimestamp;
+  const startTimestamp =
+    ops.value[0]?.blockTimestamp || Math.floor(Date.now() / 1000) - 60 * 60;
   const newOps = await indexerService.getLatestUserOps(
     LIMIT,
+    startTimestamp,
     chain.value || undefined,
-    startBlock,
   );
   const opList = [...newOps, ...ops.value];
   opList.sort((a, b) => b.blockTimestamp - a.blockTimestamp);
