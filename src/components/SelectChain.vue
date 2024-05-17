@@ -114,18 +114,18 @@ export type { Item };
   border-radius: 2px;
   outline: none;
   background: transparent;
-  box-shadow: 1px 1px 0 0 rgb(0 0 0 / 10%);
+  box-shadow: 1px 1px 0 0 oklch(from var(--color-accent) l c h / 10%);
   color: var(--color-text-secondary);
   cursor: pointer;
 
   &:focus {
     border: 1px solid var(--color-border);
-    box-shadow: 2px 2px 0 0 rgb(0 0 0 / 10%);
+    box-shadow: 2px 2px 0 0 oklch(from var(--color-accent) l c h / 10%);
   }
 
   &:hover {
     border-color: var(--color-border);
-    box-shadow: 2px 2px 0 0 rgb(0 0 0 / 10%);
+    box-shadow: 2px 2px 0 0 oklch(from var(--color-accent) l c h / 10%);
     color: var(--color-text-primary);
   }
 
@@ -152,7 +152,7 @@ export type { Item };
   border: 1px solid var(--color-border);
   border-radius: 4px;
   background: oklch(from var(--color-background-primary) l c h / 60%);
-  box-shadow: 1px 1px 0 0 rgb(0 0 0 / 20%);
+  box-shadow: 1px 1px 0 0 oklch(from var(--color-accent) l c h / 20%);
   backdrop-filter: blur(4px);
 }
 
