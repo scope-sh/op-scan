@@ -1,5 +1,5 @@
 <template>
-  <AccordionRoot
+  <Accordion.Root
     type="single"
     class="actions"
     :collapsible="true"
@@ -9,11 +9,11 @@
         v-for="(call, callIndex) in calls"
         :key="callIndex"
       >
-        <AccordionItem
+        <Accordion.Item
           class="action"
           :value="callIndex.toString()"
         >
-          <AccordionTrigger class="action-trigger">
+          <Accordion.Trigger class="action-trigger">
             <div class="side">
               <div class="action-index">{{ callIndex + 1 }}</div>
               <div class="action-description">
@@ -38,8 +38,8 @@
             <div class="side">
               <IconChevronDown class="icon" />
             </div>
-          </AccordionTrigger>
-          <AccordionContent class="action-content">
+          </Accordion.Trigger>
+          <Accordion.Content class="action-content">
             <div class="action-details">
               <div class="action-detail">
                 <div class="action-detail-label">Address</div>
@@ -64,8 +64,8 @@
                 <div class="action-detail-value">{{ call.data }}</div>
               </div>
             </div>
-          </AccordionContent>
-        </AccordionItem>
+          </Accordion.Content>
+        </Accordion.Item>
       </template>
     </template>
     <template v-else>
@@ -73,16 +73,11 @@
         {{ value }}
       </div>
     </template>
-  </AccordionRoot>
+  </Accordion.Root>
 </template>
 
 <script setup lang="ts">
-import {
-  AccordionRoot,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from 'radix-vue';
+import { Accordion } from 'radix-vue/namespaced';
 import { Address, Hex } from 'viem';
 import { computed, ref, watch } from 'vue';
 
