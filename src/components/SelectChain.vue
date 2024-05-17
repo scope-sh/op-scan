@@ -151,7 +151,7 @@ export type { Item };
   animation: scale-in 0.125s ease-out;
   border: 1px solid var(--color-border);
   border-radius: 4px;
-  background: oklch(from var(--color-background-primary) l c h / 60%);
+  background: oklch(from var(--color-background-primary) l c h / 80%);
   box-shadow: 1px 1px 0 0 oklch(from var(--color-accent) l c h / 20%);
   backdrop-filter: blur(4px);
 }
@@ -189,7 +189,7 @@ export type { Item };
 
   &:hover,
   &:focus {
-    background: var(--color-background-secondary);
+    background: var(--color-background-tertiary);
     color: var(--color-text-secondary);
   }
 }
