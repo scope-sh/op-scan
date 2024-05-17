@@ -35,6 +35,12 @@
         </tr>
       </thead>
       <tbody>
+        <div
+          v-if="ops.length === 0"
+          class="empty"
+        >
+          No rows to display.
+        </div>
         <TransitionGroup name="list">
           <tr
             v-for="row in table.getRowModel().rows"
@@ -337,5 +343,13 @@ tbody {
 
 .hide {
   display: none;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  color: var(--color-text-secondary);
 }
 </style>
