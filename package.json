@@ -31,6 +31,7 @@
     "@tanstack/vue-table": "^8.16.0",
     "@vueuse/core": "^10.9.0",
     "evm-providers": "^0.4.5",
+    "lightningcss": "^1.24.1",
     "pinia": "^2.1.7",
     "radix-vue": "^1.8.0",
     "viem": "^2.9.28",
