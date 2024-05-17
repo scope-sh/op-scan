@@ -15,6 +15,14 @@ import {
   polygonAmoy,
   arbitrum,
   arbitrumSepolia,
+  gnosis,
+  gnosisChiado,
+  cyber,
+  celo,
+  avalanche,
+  linea,
+  blast,
+  blastSepolia,
 } from 'viem/chains';
 
 const ETHEREUM = mainnet.id;
@@ -27,6 +35,14 @@ const POLYGON = polygon.id;
 const POLYGON_AMOY = polygonAmoy.id;
 const ARBITRUM = arbitrum.id;
 const ARBITRUM_SEPOLIA = arbitrumSepolia.id;
+const GNOSIS = gnosis.id;
+const GNOSIS_CHIADO = gnosisChiado.id;
+const CYBER = cyber.id;
+const CELO = celo.id;
+const AVALANCHE = avalanche.id;
+const LINEA = linea.id;
+const BLAST = blast.id;
+const BLAST_SEPOLIA = blastSepolia.id;
 
 type Chain =
   | typeof ETHEREUM
@@ -38,7 +54,15 @@ type Chain =
   | typeof POLYGON
   | typeof POLYGON_AMOY
   | typeof ARBITRUM
-  | typeof ARBITRUM_SEPOLIA;
+  | typeof ARBITRUM_SEPOLIA
+  | typeof GNOSIS
+  | typeof GNOSIS_CHIADO
+  | typeof CYBER
+  | typeof CELO
+  | typeof AVALANCHE
+  | typeof LINEA
+  | typeof BLAST
+  | typeof BLAST_SEPOLIA;
 
 const DEFAULT_CHAIN = ETHEREUM;
 
@@ -53,6 +77,14 @@ const CHAINS: Chain[] = [
   POLYGON_AMOY,
   ARBITRUM,
   ARBITRUM_SEPOLIA,
+  GNOSIS,
+  GNOSIS_CHIADO,
+  CYBER,
+  CELO,
+  AVALANCHE,
+  LINEA,
+  BLAST,
+  BLAST_SEPOLIA,
 ];
 
 function getChainData(chainId: Chain): ChainData {
@@ -77,6 +109,22 @@ function getChainData(chainId: Chain): ChainData {
       return arbitrum;
     case ARBITRUM_SEPOLIA:
       return arbitrumSepolia;
+    case GNOSIS:
+      return gnosis;
+    case GNOSIS_CHIADO:
+      return gnosisChiado;
+    case CYBER:
+      return cyber;
+    case CELO:
+      return celo;
+    case AVALANCHE:
+      return avalanche;
+    case LINEA:
+      return linea;
+    case BLAST:
+      return blast;
+    case BLAST_SEPOLIA:
+      return blastSepolia;
   }
 }
 
