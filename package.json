@@ -32,7 +32,7 @@
     "@vueuse/core": "^10.9.0",
     "evm-providers": "^0.4.5",
     "pinia": "^2.1.7",
-    "radix-vue": "^1.7.3",
+    "radix-vue": "^1.8.0",
     "viem": "^2.9.28",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0"
