@@ -269,20 +269,16 @@ class Service {
 
   public async getLatestUserOps(
     limit: number,
+    chain?: Chain,
     startBlock?: number,
   ): Promise<FeedUserOp[]> {
     const query = `{
       UserOp(
         limit: ${limit},
-        ${
-          startBlock
-            ? `where: {
-          blockTimestamp: {
-            _gt: ${startBlock || 0}
-          }
-        }`
-            : ''
-        }
+        where: {
+          ${chain ? `chainId: { _eq: ${chain} },` : ''}
+          ${startBlock ? `blockTimestamp: { _gt: ${startBlock} },` : ''}
+        },
         order_by: {
           blockTimestamp: desc
         }

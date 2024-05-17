@@ -1,28 +1,27 @@
 <template>
   <div class="page">
     <div class="content">
-      <div class="header">
-        <form @submit.prevent="handleSubmit">
-          <input
-            v-model="query"
-            placeholder="Enter UserOp hash"
-          />
-        </form>
-        <div class="chain-list">
-          <IconArbitrum class="chain" />
-          <IconBase class="chain" />
-          <IconEthereum class="chain" />
-          <IconOptimism class="chain" />
-          <IconPolygon class="chain" />
-          <span>& testnets</span>
-        </div>
-      </div>
+      <form @submit.prevent="handleSubmit">
+        <input
+          v-model="query"
+          placeholder="Enter UserOp hash"
+        />
+      </form>
 
-      <TableOpFeed
-        :ops="opRows"
-        :per-page="20"
-        :page="1"
-      />
+      <div class="recent">
+        <div class="select">
+          <SelectChain
+            v-model="chain"
+            :options="chains"
+            placeholder="Select chain"
+          />
+        </div>
+        <TableOpFeed
+          :ops="opRows"
+          :per-page="20"
+          :page="1"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -33,16 +32,12 @@ import { Address } from 'viem';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import IconArbitrum from '@/components/IconArbitrum.vue';
-import IconBase from '@/components/IconBase.vue';
-import IconEthereum from '@/components/IconEthereum.vue';
-import IconOptimism from '@/components/IconOptimism.vue';
-import IconPolygon from '@/components/IconPolygon.vue';
+import SelectChain from '@/components/SelectChain.vue';
 import TableOpFeed, { UserOp as UserOpRow } from '@/components/TableOpFeed.vue';
 import useEnv from '@/composables/useEnv';
 import useLabels from '@/composables/useLabels';
 import IndexerService, { FeedUserOp } from '@/services/indexer';
-import { CHAINS, Chain } from '@/utils/chains';
+import { CHAINS, Chain, getChainName } from '@/utils/chains';
 import { isUserOpHash } from '@/utils/validation/pattern';
 
 const router = useRouter();
@@ -62,7 +57,11 @@ async function fetch(): Promise<void> {
   const LIMIT = 20;
   const indexerService = new IndexerService(indexerEndpoint);
   const startBlock = ops.value[0]?.blockTimestamp;
-  const newOps = await indexerService.getLatestUserOps(LIMIT, startBlock);
+  const newOps = await indexerService.getLatestUserOps(
+    LIMIT,
+    chain.value || undefined,
+    startBlock,
+  );
   const opList = [...newOps, ...ops.value];
   opList.sort((a, b) => b.blockTimestamp - a.blockTimestamp);
   ops.value = opList.slice(0, LIMIT);
@@ -90,6 +89,32 @@ function handleSubmit(): void {
   }
   router.push({ name: 'op', params: { hash: query.value } });
 }
+
+const chain = ref<Chain | null>(null);
+const chains = computed(() =>
+  (
+    [
+      {
+        value: null,
+        label: 'All chains',
+      },
+    ] as {
+      value: Chain | null;
+      label: string;
+    }[]
+  ).concat(
+    ...CHAINS.map((chain) => {
+      return {
+        value: chain,
+        label: getChainName(chain),
+      };
+    }),
+  ),
+);
+watch(chain, () => {
+  ops.value = [];
+  fetch();
+});
 
 const addresses = computed<Record<Chain, Address[]>>(() => {
   return Object.fromEntries(
@@ -151,7 +176,7 @@ input {
   }
 }
 
-.header {
+.recent {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -159,13 +184,7 @@ input {
   font-size: 14px;
 }
 
-.chain-list {
-  display: flex;
-  gap: 8px;
-}
-
-.chain {
-  width: 16px;
-  height: 16px;
+.select {
+  width: 160px;
 }
 </style>
