@@ -39,7 +39,7 @@
           v-if="ops.length === 0"
           class="empty"
         >
-          No rows to display.
+          No recent activity.
         </div>
         <TransitionGroup name="list">
           <tr
