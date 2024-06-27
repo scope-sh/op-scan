@@ -48,11 +48,14 @@ class Service {
       chain: this.chainId.toString(),
       address,
     };
-    const url = new URL(`${labelApiEndpoint}/one`);
+    const url = new URL(`${labelApiEndpoint}/all`);
     url.search = new URLSearchParams(params).toString();
     const response = await fetch(url);
-    const label: LabelWithAddress | null = await response.json();
-    return label;
+    const labels: Label[] = await response.json();
+    if (labels.length === 0) {
+      return null;
+    }
+    return labels[0] as LabelWithAddress;
   }
 
   public async getLabels(
@@ -62,7 +65,7 @@ class Service {
       chain: this.chainId.toString(),
     };
     const body = JSON.stringify({ addresses });
-    const url = new URL(`${labelApiEndpoint}/many`);
+    const url = new URL(`${labelApiEndpoint}/primary`);
     url.search = new URLSearchParams(params).toString();
     const response = await fetch(url, {
       method: 'POST',
