@@ -1,3 +1,4 @@
+import ky, { KyInstance } from 'ky';
 import { Address, Hex } from 'viem';
 
 import { CHAINS, Chain } from '@/utils/chains';
@@ -107,10 +108,10 @@ interface FeedUserOp {
 }
 
 class Service {
-  endpointUrl: string;
+  client: KyInstance;
 
   constructor(endpointUrl: string) {
-    this.endpointUrl = endpointUrl;
+    this.client = ky.create({ prefixUrl: endpointUrl });
   }
 
   public async getUserOpByHash(hash: Hex): Promise<TransactionUserOp | null> {
@@ -135,15 +136,8 @@ class Service {
       })}
     }`;
 
-    const response = await fetch(this.endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    });
-
-    const json = (await response.json()) as HashUserOpResponse;
+    const response = await this.client.post('', { json: { query } });
+    const json = await response.json<HashUserOpResponse>();
     for (const chain of CHAINS) {
       const userOp = json.data[`UserOp_${chain}`][0];
       if (userOp) {
@@ -187,15 +181,8 @@ class Service {
       }
     }`;
 
-    const response = await fetch(this.endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    });
-
-    const json = (await response.json()) as ChainHashUserOpResponse;
+    const response = await this.client.post('', { json: { query } });
+    const json = await response.json<ChainHashUserOpResponse>();
     const userOp = json.data.UserOp[0];
     if (userOp) {
       return {
@@ -241,15 +228,8 @@ class Service {
       }
     }`;
 
-    const response = await fetch(this.endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    });
-
-    const json = (await response.json()) as UserOpsResponse;
+    const response = await this.client.post('', { json: { query } });
+    const json = await response.json<UserOpsResponse>();
     if (json.data.UserOp.length === 0) {
       return [];
     } else {
@@ -295,15 +275,8 @@ class Service {
       }
     }`;
 
-    const response = await fetch(this.endpointUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ query }),
-    });
-
-    const json = (await response.json()) as UserOpFeedResponse;
+    const response = await this.client.post('', { json: { query } });
+    const json = await response.json<UserOpFeedResponse>();
     if (json.data.UserOp.length === 0) {
       return [];
     } else {

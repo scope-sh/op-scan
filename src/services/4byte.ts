@@ -1,3 +1,4 @@
+import ky from 'ky';
 import { Hex } from 'viem';
 
 interface HexSignatureResponse {
@@ -15,10 +16,10 @@ interface HexSignatureResponse {
 
 class Service {
   async getSignature(signature: Hex): Promise<string | null> {
-    const response = await fetch(
+    const response = await ky.get(
       `https://www.4byte.directory/api/v1/signatures/?hex_signature=${signature}`,
     );
-    const data = (await response.json()) as HexSignatureResponse;
+    const data = await response.json<HexSignatureResponse>();
     if (data.count === 0) {
       return null;
     }

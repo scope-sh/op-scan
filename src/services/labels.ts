@@ -1,3 +1,4 @@
+import ky, { KyInstance } from 'ky';
 import { Address } from 'viem';
 
 import useEnv from '@/composables/useEnv';
@@ -38,43 +39,39 @@ const { labelApiEndpoint } = useEnv();
 
 class Service {
   chainId: Chain;
+  client: KyInstance;
 
   constructor(chainId: Chain) {
     this.chainId = chainId;
+    this.client = ky.create({
+      prefixUrl: labelApiEndpoint,
+    });
   }
 
   public async getLabel(address: Address): Promise<LabelWithAddress | null> {
-    const params: Record<string, string> = {
-      chain: this.chainId.toString(),
-      address,
-    };
-    const url = new URL(`${labelApiEndpoint}/all`);
-    url.search = new URLSearchParams(params).toString();
-    const response = await fetch(url);
-    const labels: Label[] = await response.json();
+    const response = await this.client.get('all', {
+      searchParams: {
+        chain: this.chainId,
+        address,
+      },
+    });
+    const labels = await response.json<Label[]>();
     if (labels.length === 0) {
       return null;
     }
-    return labels[0] as LabelWithAddress;
+    return { ...labels[0] } as LabelWithAddress;
   }
 
   public async getLabels(
     addresses: Address[],
   ): Promise<Record<Address, Label>> {
-    const params: Record<string, string> = {
-      chain: this.chainId.toString(),
-    };
-    const body = JSON.stringify({ addresses });
-    const url = new URL(`${labelApiEndpoint}/primary`);
-    url.search = new URLSearchParams(params).toString();
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await this.client.post('primary', {
+      searchParams: {
+        chain: this.chainId,
       },
-      body,
+      json: { addresses },
     });
-    const labels: Record<Address, Label> = await response.json();
+    const labels = await response.json<Record<Address, Label>>();
     return labels;
   }
 }
